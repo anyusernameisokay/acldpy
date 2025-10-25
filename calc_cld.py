@@ -180,8 +180,44 @@ def sweep(M):
     # Return the swept matrix
     return M
 
-### Calculate
+### Determine letters
 # Still missing
+def determine_letters(letter_matrix, unique_groups, letter_type='low_a-z'):
+    cld_dict = {}
+    
+    # How many letters a needed in total.
+    n_letters = letter_matrix.shape[1]
+    # Define which letters to use. (Doing it this way offers more flexibility later.)
+    if letter_type == 'low_a-z':
+        letters = [chr(i) for i in range(97, 97 + n_letters)]  # a-z
+    elif letter_type == 'up_A-Z':
+        letters = [chr(i) for i in range(65, 65 + n_letters)]  # A-Z
+    else:
+        raise ValueError("Not a valid letter type was chosen. Choose 'low_a-z' or 'up_A-Z'.")
+    # Assign letters to groups.
+    for i, group in enumerate(unique_groups):
+        group_letters = ''
+        for j in range(n_letters):
+            if letter_matrix[i, j] == 1:
+                group_letters += letters[j]
+        cld_dict[group] = group_letters
+
+    return cld_dict
+
+def fill_all_zero_rows(letter_matrix):
+    # Check for any all-0 rows
+    zero_rows = np.all(letter_matrix == 0, axis=1)
+    any_row_all_zero = np.any(zero_rows)
+    if any_row_all_zero:
+        # Create a new matrix with an additional column
+        new_matrix = np.zeros((letter_matrix.shape[0], letter_matrix.shape[1] + 1), dtype=np.int8)
+        # Copy the old matrix into the new one
+        new_matrix[:, :-1] = letter_matrix
+        # Set the last column to 1 for all-0 rows
+        new_matrix[zero_rows, -1] = 1
+        return new_matrix
+    else:
+        return letter_matrix
 
 ### Verify
 def verify_cld(final_cld, group_one_column, group_two_column, p_values, alpha):
@@ -199,3 +235,5 @@ def verify_cld(final_cld, group_one_column, group_two_column, p_values, alpha):
             # Groups should share at least one letter.
             assert shared_letters != set(), f"Groups {group_one} and {group_two} do not share any letters but should."
     return True
+
+# The end.
