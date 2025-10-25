@@ -1,0 +1,10 @@
+
+
+# Related to dev environment
+.vscode/
+.ipynb_checkpoints/
+OLD/
+__pycache__/
+
+# Literature
+literature/
