@@ -181,7 +181,7 @@ def sweep(M):
     return M
 
 ### Determine letters
-# Still missing
+
 def determine_letters(letter_matrix, unique_groups, letter_type='low_a-z'):
     cld_dict = {}
     
@@ -235,5 +235,25 @@ def verify_cld(final_cld, group_one_column, group_two_column, p_values, alpha):
             # Groups should share at least one letter.
             assert shared_letters != set(), f"Groups {group_one} and {group_two} do not share any letters but should."
     return True
+
+### Run the entire process
+def run_clc(group_1_col, group_2_col, pvals, alpha=0.05):
+    # 1) Build capital_H.
+    capital_H = calc_big_H(group_1_col, group_2_col, pvals, alpha)
+    # 2) List unique groups.
+    unique_groups = list_unique_groups(group_1_col, group_2_col)
+    # 3) Insert and absorb
+    letter_matrix = heuristic_insert_absorb(unique_groups, capital_H)
+    # 4) Sweep 
+    letter_matrix = sweep(letter_matrix)
+    # Fill in any all-0 rows
+    letter_matrix = fill_all_zero_rows(letter_matrix)
+    # 5) Determine letters
+    final_letters = determine_letters(letter_matrix, unique_groups)
+    # 6) Verify that the calculated solutions solves the problem correctly.
+    is_valid = verify_cld(final_letters, group_1_col, group_2_col, pvals, alpha)
+    print(f"CLD valid: {is_valid}")
+    return final_letters
+
 
 # The end.

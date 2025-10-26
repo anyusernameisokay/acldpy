@@ -14,8 +14,28 @@ compatiple with all major Python statistics librairies.
 <br><br>
 Users conduct their statistical test with the library of their choice. Then,
 they pass their result to run_cld. <br>
-The package implements algorithms that were described by Hans-Peter Piepho
+The package implements algorithms that were described by Piepho
 and coworkers [1,2].
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install acld
+```
+
+## Basic usage
+We first conduct a statistical compairison with the library of our choice. 
+Then, we pass the result to the acld function. 
+```python
+from acld import run_cld
+
+obj = SomeClass()
+result = obj.do_something()
+print(result)
+```
+
 
 ## Development & Planned Features
 
@@ -43,84 +63,9 @@ H.-P. Piepho, “An algorithm for a Letter-Based representation of
 All-Pairwise comparisons,” Journal of Computational and Graphical Statistics,
 vol. 13, no. 2, pp. 456–466, Jun. 2004,
 <a href= "https://doi.org/10.1198/1061860043515">doi: 10.1198/1061860043515.</a>
+<br><br>
+I am not affiliated with the authors of these studies. 
 
-## Installation
-
-Install from PyPI:
-
-```bash
-pip install project-name
-```
-
-Or install from source:
-
-```bash
-git clone https://github.com/username/project-name.git
-cd project-name
-pip install -e .
-```
-
-## Quickstart
-
-Minimal example showing the most common use case:
-
-```python
-from project_name import SomeClass
-
-obj = SomeClass()
-result = obj.do_something()
-print(result)
-```
-
-## Basic Usage
-
-Explain main modules/functions and short examples:
-
-- project_name.module.function(args) — short description
-- project_name.other.Class — short description
-
-## Configuration
-
-Describe configuration options, environment variables, or config files:
-
-- CONFIG_OPTION — default: value — description
-
-## CLI
-
-If the package exposes a CLI:
-
-```bash
-project-name --help
-project-name run --option value
-```
-
-## API Reference
-
-Link to or list the main public API. Prefer linking to full docs if available.
-
-- project_name.main_function(param1, param2) -> ReturnType
-- project_name.Class.method(...) -> ReturnType
-
-## Tests
-
-Run tests locally:
-
-```bash
-pytest
-```
-
-## Contributing
-
-Short contribution guidelines:
-
-1. Fork the repo
-2. Create a feature branch
-3. Open a PR with tests and documentation
-4. Follow the code style and commit message guidelines
-
-## Changelog
-
-Follow Semantic Versioning. Summaries of notable changes in each release (link to CHANGELOG.md).
 
 ## License
 
@@ -138,7 +83,6 @@ Report issues at: https://github.com/username/project-name/issues
 ## Links
 
 - PyPI: https://pypi.org/project/project-name
-- Documentation: https://project-name.readthedocs.io (or docs folder)
 - Source: https://github.com/username/project-name
 
 Replace placeholders (project-name, username, links, examples) with real values.
