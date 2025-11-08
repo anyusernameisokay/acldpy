@@ -1,46 +1,88 @@
-
+from typing import List, Tuple, Dict
 import numpy as np
 
-
-###
-# Build capital H
-def calc_big_H(group_1_col, group_2_col, pvals, alpha):
-    capital_H = list()
-    for (group_1, group_2, p_value) in zip(group_1_col, group_2_col, pvals):
+def calc_capital_h(
+    group_1_col: List[str],
+    group_2_col: List[str],
+    p_vals: List[float],
+    alpha: float
+    ) -> List[Tuple[str, str]]:
+    """
+    Checks which treatment pairs are signficantly different from one another,
+    based on whether respective p-value is smaller than signgicance level.
+    
+        Parameters: 
+            group_1_col: List of all first elements to compare.
+            group_2_col: List of all second elemnts to compare.
+            p_vals: List of all p-values on which comparison is based on.
+            alpha: Significance level. 
+        
+        Returns:
+            capital_h: List of treatment pairs with significant difference.
+    """
+    capital_h = []
+    for (group_1, group_2, p_value) in zip(group_1_col, group_2_col, p_vals):
         if p_value < alpha:
-            capital_H.append((group_1, group_2))
-    return capital_H
+            capital_h.append((group_1, group_2))
+    return capital_h
 
-def list_unique_groups(group_1_col, group_2_col):
+def list_unique_elements(
+        group_1_col: List[str],
+        group_2_col: List[str]
+        ) -> Tuple:
+    """
+    List all elements that are included in the comparison.
+    
+        Parameters: 
+            group_1_col: List of all first elements.
+            group_2_col: List of all second elements.
+
+        Returns:
+            unique_elements: All unique elements.
+    """
     all_groups = group_1_col + group_2_col
-    unique_groups = tuple(list(dict.fromkeys(all_groups))) # Ensure inmutable.
-    return unique_groups
+    unique_elements = tuple(list(dict.fromkeys(all_groups)))
+    return unique_elements
 
+def insert_new_columns(
+        M: np.ndarray,
+        i: np.ndarray,
+        j: np.ndarray
+        ) -> List[np.ndarray]:
+    """
+    Inserts new columns to the letter matrix if required. New columns are required for each
+    original column that contains 1 in both rows that correspond to the two compared elements.
+    In that case, the original column is removed, and  a two new ones are added: 
+        1. Contains 1 in element row 1 and 0 in element row 2.
+        2. Contains 0 in element row 1 and 1 in element row 2.
+    This function is called once for each pair with significant difference.
 
-###
-# Insert 
-def insert_new_columns(M, i, j):    
-    #IMPORTANT: I believe it is working, but needs checking.
+        Parameters:
+            M: Letter matrix as a 2D numpy array, where each column corresponds to an element (treatment),
+                and each row corresponds to a letter (1 indicates presence of letter, 0 absence).
+            i: Indices indicating for which letters the first element (treatment) has a 1.
+            j: Indices indicating for which letters the second element (treatment) has a 1.
 
-    # Create a new matrix.
+        Returns:
+            new_matrix_columns: List of all columns after the insertion step.
+    """
     new_matrix_columns = []
-    idx_of_new_columns = []
+
     # Iterate over columns of M. (M.shape[1] is number of columns).
+    # And check whether column needs to be duplicated.
     for column_index in range(M.shape[1]):
-        # Check whether column needs to be duplicated.
         column_in_M = M[:, column_index]
         ith_position = column_in_M[i]
         jth_position = column_in_M[j]
 
-        # No insertion needed.
+        # No insertion needed, original column can be kept.
         if (ith_position == 1 and jth_position == 0) or (ith_position == 0 and jth_position == 1):
             new_matrix_columns.append(column_in_M)
-            idx_of_new_columns.append(len(new_matrix_columns) - 1)
 
         # Column needs to be duplicated if it contains 1 on both, i and j.
         else:
-            # One copy must be like M, with ith position 0, and jth position 1.
-            # The other copy must be like M, with ith position 1, and jth position 0.
+            # One copy must be like original, but with position 0, and jth position 1.
+            # The other copy must be like original, but with position 1, and jth position 0.
             column_copy_one = column_in_M.copy()
             column_copy_one.put([i, j], [0, 1])
 
@@ -50,16 +92,29 @@ def insert_new_columns(M, i, j):
             new_matrix_columns.append(column_copy_one)
             new_matrix_columns.append(column_copy_two)
 
-            # Index of newly added columns.
-            idx_of_new_columns.append(len(new_matrix_columns) - 2)
-            idx_of_new_columns.append(len(new_matrix_columns) - 1)
-    return new_matrix_columns, idx_of_new_columns
+    return new_matrix_columns
 
-###
-# Absorb
-def absorb_columns(M, idx_of_new_columns):
+def absorb_columns(
+        M: List[np.ndarray]
+        ) -> List[np.ndarray]:
+    """
+    Absorbs columns, if possible. A column (each column is a letter) can be absorbed (= removed) if there exist another
+    column that contains 1 for all the same elements (each row is an element).
+    In the following example, L1 can be absorbed (removed), by L2.
+       L1 L2 L3  
+    T1 0  1  0
+    T2 1  1  0
+    T3 1  1  1
+    T4 0  0  1
+    
+        Parameter:
+            M: List of all columns after the insertion step.
+
+        Returns:
+            not_absorbed_cols: The letter matrix after absorbing columns.
+    """
+
     not_absorbed_cols = [] # Collects all columns that need to be kept.
-
     # Tracks all cols that have been absobed.
     # Avoids 
     absorbed_cols_indices = []
@@ -92,34 +147,40 @@ def absorb_columns(M, idx_of_new_columns):
 
     return not_absorbed_cols
           
-###
-# Insert and absorb
-def heuristic_insert_absorb(unique_groups, capital_H):
-    i = 0 # For debugging.
-    # FIXME: Naming ambigous!!! Change later. 
-    # IMPORTANT: In here, we decided that the order of theunique groups is the order in the matrix.
+def insert_absorb(
+        unique_elements: Tuple,
+        capital_h: List[Tuple[int, int]]
+        ) -> np.ndarray:
+    """
+    Iterates over the significantly different pairs,
+    applying the insert-absorb algorithm to generate the letter matrix.
+
+    Parameters:
+        unique_elements: All unique elements.
+        capital_h: List of treatment pairs with significant difference.
+
+    Returns:
+        M: Letter matrix as a 2D numpy array,
+            where each column corresponds to an element (treatment),
+            and each row corresponds to a letter (1 indicates presence of letter, 0 absence).
+    """
     # 1) Generate inital treatment column.
-    index_column = np.array(unique_groups) # Contains treatment. Also used to find row index.
-    column_one = np.ones(len(unique_groups), dtype=np.int8).reshape(-1, 1) # One starts with a column of ones.
-    M = column_one # Initial letter matrix.
-    
+    index_column = np.array(unique_elements)
+    col_one = np.ones(len(unique_elements), dtype=np.int8).reshape(-1, 1) # Start with column of 1.
+    M = col_one # Letter matrix.
+
     # 2) Iterate over significantly different pairs.
-    for (group_one, group_two) in capital_H: # sig_dif = two groups that are significantly different
+    for (group_one, group_two) in capital_h:
         # 2.1) Find indices of the groups that are significantly different.
         group_one_index = np.where(index_column == group_one)[0][0]
         group_two_index = np.where(index_column == group_two)[0][0]
 
         # 2.2) Insert and absorb.
-        M, idx_of_new_columns = insert_new_columns(M, group_one_index, group_two_index)
-        M = absorb_columns(M, idx_of_new_columns)
+        M = insert_new_columns(M, group_one_index, group_two_index)
+        M = absorb_columns(M)
 
-        # Reshape letter_matrix back to 2D array.
+        # 2.3) Reshape letter_matrix back to 2D array.
         M = np.array(M).T
-
-        if i == 1:
-            pass
-        i += 1
-
     return M
 
 ### 
@@ -237,23 +298,41 @@ def verify_cld(final_cld, group_one_column, group_two_column, p_values, alpha):
     return True
 
 ### Run the entire process
-def run_clc(group_1_col, group_2_col, pvals, alpha=0.05):
-    # 1) Build capital_H.
-    capital_H = calc_big_H(group_1_col, group_2_col, pvals, alpha)
-    # 2) List unique groups.
-    unique_groups = list_unique_groups(group_1_col, group_2_col)
-    # 3) Insert and absorb
-    letter_matrix = heuristic_insert_absorb(unique_groups, capital_H)
-    # 4) Sweep 
+def run_clc(
+    group_1_col: List[str],
+    group_2_col: List[str],
+    p_vals: List[float],
+    alpha: float = 0.05,
+    ) -> Dict[str, str]:
+    """
+    Computes a Compact Letter Display (CLD) from pairwise group comparisons.
+    Implements the insert-absorb and sweep algorithms by Piepho (2004).
+    First, all significant differences between element pairs are identified.
+    Then, the insert-absorb and sweep algorithms are applied to find a clc with minimal letters.
+    Finally, the letter assignment is verified against the original pairwise comparisons.
+
+        Parameters: 
+            group_1_col: List of all first elements to compare.
+            group_2_col: List of all second elements to compare.
+            p_vals: List of all p-values on which comparison is based on.
+            alpha: Significance level. 
+        
+        Returns: 
+            final_letters: Dictionary mapping each element to its assigned letters.
+    """
+    # 1) Filter out all pairs with significant differences (capital_h).
+    capital_h = calc_capital_h(group_1_col, group_2_col, p_vals, alpha)
+    # 2) List all unique elements.
+    unique_elements = list_unique_elements(group_1_col, group_2_col)
+    # 3) Insert and absorb algorithm.
+    letter_matrix = insert_absorb(unique_elements, capital_h)
+    # 4) Sweep
     letter_matrix = sweep(letter_matrix)
     # Fill in any all-0 rows
     letter_matrix = fill_all_zero_rows(letter_matrix)
-    # 5) Determine letters
-    final_letters = determine_letters(letter_matrix, unique_groups)
+    # 5) Translate matrix into letters.
+    final_letters = determine_letters(letter_matrix, unique_elements)
     # 6) Verify that the calculated solutions solves the problem correctly.
-    is_valid = verify_cld(final_letters, group_1_col, group_2_col, pvals, alpha)
-    print(f"CLD valid: {is_valid}")
+    verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha)
+
     return final_letters
-
-
-# The end.
