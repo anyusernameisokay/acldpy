@@ -111,17 +111,17 @@ def absorb_columns(
             M: List of all columns after the insertion step.
 
         Returns:
-            not_absorbed_cols: The letter matrix after absorbing columns.
+            not_absorbed_cols: The letter matrix containing only columns that could not be absorbed.
     """
+    # Collects all columns that need to be kept.
+    not_absorbed_cols = []
 
-    not_absorbed_cols = [] # Collects all columns that need to be kept.
-    # Tracks all cols that have been absobed.
-    # Avoids 
-    absorbed_cols_indices = []
+    # Tracks cols that have been absobed to avoid columns reffering to each
+    # other when determing whether they should be absorbed.
+    absorbed_cols_indices = [] 
+
     for col_one_id, col_one in enumerate(M):
         can_col_one_be_absorbed = False
-
-        # Check each column.
         non_zero_col_one_idx = col_one.nonzero()
         # Compare against each other column
         for col_two_id, col_two in enumerate(M):
@@ -131,7 +131,7 @@ def absorb_columns(
             # Skip if col two has already been absorbed.
             elif col_two_id in absorbed_cols_indices: 
                 continue
-            # Otherwise do the comparison. 
+            # Otherwise check whether absorbance is possible.
             else: 
                 non_zero_col_two_idx = col_two.nonzero()
                 col_one_is_completly_in_col_two = np.in1d(non_zero_col_one_idx, non_zero_col_two_idx).all()
@@ -155,14 +155,14 @@ def insert_absorb(
     Iterates over the significantly different pairs,
     applying the insert-absorb algorithm to generate the letter matrix.
 
-    Parameters:
-        unique_elements: All unique elements.
-        capital_h: List of treatment pairs with significant difference.
+        Parameters:
+            unique_elements: All unique elements.
+            capital_h: List of treatment pairs with significant difference.
 
-    Returns:
-        M: Letter matrix as a 2D numpy array,
-            where each column corresponds to an element (treatment),
-            and each row corresponds to a letter (1 indicates presence of letter, 0 absence).
+        Returns:
+            M: Letter matrix as a 2D numpy array,
+                where each column corresponds to an element (treatment),
+                and each row corresponds to a letter (1 indicates presence of letter, 0 absence).
     """
     # 1) Generate inital treatment column.
     index_column = np.array(unique_elements)
@@ -183,8 +183,7 @@ def insert_absorb(
         M = np.array(M).T
     return M
 
-### 
-# Sweep 
+
 def sweep(M):
     # Go each letter (columns in the letter matrix)
     for first_column_nr, unique_letter_column in enumerate(M.T):
@@ -280,22 +279,37 @@ def fill_all_zero_rows(letter_matrix):
     else:
         return letter_matrix
 
-### Verify
-def verify_cld(final_cld, group_one_column, group_two_column, p_values, alpha):
-    for (group_one, group_two, p_value) in zip(group_one_column, group_two_column, p_values):
-        letters_one = final_cld[group_one]
-        letters_two = final_cld[group_two]
+def verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha):
+    """
+    Checks whether the calculated cld is accurate by checking that elements, that are siginicantly
+    different share no letter, and elements that are not significantly different share at least 
+    one letter in the final cld. An exception is thrown, if are mistake is discovered.
+
+        Parameters:
+            final_letters:
+            group_1_col: List of all first elements to compare.
+            group_2_col: List of all second elements to compare.
+            p_vals: List of all p-values on which comparison is based on.
+            alpha: Significance level. 
+
+        Returns nothing.
+
+
+    """
+    for (group_one, group_two, p_value) in zip(group_1_col, group_2_col, p_vals):
+        letters_one = final_letters[group_one]
+        letters_two = final_letters[group_two]
 
         # Check if there is any common letter between the two groups.
         shared_letters = set(letters_one).intersection(set(letters_two))
 
-        if p_value <= alpha:
+        if p_value < alpha:
             # Groups should not share any letters.
             assert shared_letters == set(), f"Groups {group_one} and {group_two} share letters {shared_letters} but should not."
         else:
             # Groups should share at least one letter.
             assert shared_letters != set(), f"Groups {group_one} and {group_two} do not share any letters but should."
-    return True
+    return
 
 ### Run the entire process
 def run_clc(
