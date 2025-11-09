@@ -28,20 +28,31 @@ def calc_capital_h(
 
 def list_unique_elements(
         group_1_col: List[str],
-        group_2_col: List[str]
+        group_2_col: List[str],
+        letter_order: None | List[str],
         ) -> Tuple:
     """
-    List all elements that are included in the comparison.
+    List all elements that are included in the comparison. If an order
+    is given, the elements are put in that order and it is checked 
+    whether unique elements  (derived from the groups) and the list of 
+    ordered elements are the same.
     
         Parameters: 
             group_1_col: List of all first elements.
             group_2_col: List of all second elements.
-
+            letter_order: XXX.
         Returns:
             unique_elements: All unique elements.
     """
     all_groups = group_1_col + group_2_col
     unique_elements = tuple(list(dict.fromkeys(all_groups)))
+    if isinstance(letter_order, list):
+        assert sorted(unique_elements) == sorted(letter_order), f"""The provided order must contain all the same elements found in the element groups.
+        Provided order contains {letter_order}
+        Elements found in groups are: {unique_elements}
+        """
+        unique_elements = tuple(letter_order)
+
     return unique_elements
 
 def insert_new_columns(
@@ -183,7 +194,6 @@ def insert_absorb(
         M = np.array(M).T
     return M
 
-
 def sweep(
         M: np.ndarray
         ) -> np.ndarray:
@@ -260,8 +270,6 @@ def sweep(
     # Return the swept matrix
     return M
 
-### Determine letters
-
 def determine_letters(letter_matrix, unique_groups, letter_type='low_a-z'):
     cld_dict = {}
     
@@ -298,6 +306,28 @@ def fill_all_zero_rows(letter_matrix):
         return new_matrix
     else:
         return letter_matrix
+
+def sort_letters(M):
+    """
+    XXX XXX
+        Parameters:
+
+        Returns
+    """
+    def tiny_sort(column):
+        col_1_indices = np.where(column == 1)[0]
+        col_1_indices_sorted = sorted(col_1_indices, reverse=True)
+        print(col_1_indices_sorted)
+        return col_1_indices_sorted
+  #https://numpy.org/doc/2.3/reference/generated/numpy.lexsort.html
+    # sorted_M = sorted(M.T, key=tiny_sort)
+    sorted_indices = np.lexsort(M[::-1], axis=0)
+    print(sorted_indices)
+    print(M)
+    print("3kkk")
+    print(M[:, ::-1])
+
+    return M
 
 def verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha):
     """
@@ -337,6 +367,7 @@ def run_clc(
     group_2_col: List[str],
     p_vals: List[float],
     alpha: float = 0.05,
+    letter_order: None | List[str] = None,
     ) -> Dict[str, str]:
     """
     Computes a Compact Letter Display (CLD) from pairwise group comparisons.
@@ -350,6 +381,8 @@ def run_clc(
             group_2_col: List of all second elements to compare.
             p_vals: List of all p-values on which comparison is based on.
             alpha: Significance level. 
+            letter_order: Optional. List of all elements in the order they should get assigned 
+                           letters. The first element in the list will get the "lowest" letter.
         
         Returns: 
             final_letters: Dictionary mapping each element to its assigned letters.
@@ -357,13 +390,15 @@ def run_clc(
     # 1) Filter out all pairs with significant differences (capital_h).
     capital_h = calc_capital_h(group_1_col, group_2_col, p_vals, alpha)
     # 2) List all unique elements.
-    unique_elements = list_unique_elements(group_1_col, group_2_col)
+    unique_elements = list_unique_elements(group_1_col, group_2_col, letter_order)
     # 3) Insert and absorb algorithm.
     letter_matrix = insert_absorb(unique_elements, capital_h)
     # 4) Sweep
     letter_matrix = sweep(letter_matrix)
     # 5) Fill in any all-0 rows
     letter_matrix = fill_all_zero_rows(letter_matrix)
+    # 6) Sort letter matrix rows according to unique elements order.
+    letter_matrix = letter_matrix if isinstance(letter_order, type(None)) else sort_letters(letter_matrix)
     # 6) Translate matrix into letters.
     final_letters = determine_letters(letter_matrix, unique_elements)
     # 7) Verify that the calculated solutions solves the problem correctly.
