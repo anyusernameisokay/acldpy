@@ -184,7 +184,27 @@ def insert_absorb(
     return M
 
 
-def sweep(M):
+def sweep(
+        M: np.ndarray
+        ) -> np.ndarray:
+    """
+    Performs sweeping of the matrix that is derived from the insert-absort algorithm. A column can
+    be removed if for each possible pair of rows containing 1s, there is at least one other column 
+    that contains 1s for in the same row. In the following example column L2 can be removed via sweeping.
+      L1 L2 L3  L4
+    T1 1  1  0  1
+    T2 1  0  0  1
+    T3 1  1  1  0
+    T4 0  0  1  0
+    T5 0  1  1  1
+
+        Parameter:
+            M: 2D letter matrix, after insert-absorb.
+
+        Returns:
+            M: 2D letter matrix, after sweep
+    """
+
     # Go each letter (columns in the letter matrix)
     for first_column_nr, unique_letter_column in enumerate(M.T):
         # Go through each treatment in the column and check letter.
@@ -342,11 +362,11 @@ def run_clc(
     letter_matrix = insert_absorb(unique_elements, capital_h)
     # 4) Sweep
     letter_matrix = sweep(letter_matrix)
-    # Fill in any all-0 rows
+    # 5) Fill in any all-0 rows
     letter_matrix = fill_all_zero_rows(letter_matrix)
-    # 5) Translate matrix into letters.
+    # 6) Translate matrix into letters.
     final_letters = determine_letters(letter_matrix, unique_elements)
-    # 6) Verify that the calculated solutions solves the problem correctly.
+    # 7) Verify that the calculated solutions solves the problem correctly.
     verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha)
 
     return final_letters
