@@ -1,5 +1,12 @@
 def find_cld_columns(result, result_type):
-   
+   """
+
+   Parameters:
+      result: The result object containing comparison data.
+      result_type: A string indicating the type of result ("pg_tk" or "stm_tk").
+
+   """
+
    if result_type == "pg_tk":
       return list(result['A']), list(result['B']), list(result['p-tukey'])
    

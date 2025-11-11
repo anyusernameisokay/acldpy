@@ -266,23 +266,33 @@ def sweep(
             non_empty_columns.append(column)
     M = np.array(non_empty_columns).T
 
-
-    # Return the swept matrix
     return M
 
-def determine_letters(letter_matrix, unique_groups, letter_type='low_a-z'):
+def determine_letters(
+        letter_matrix: np.ndarray,
+        unique_groups: Tuple,
+        letter_type: str ='low_a-z'
+        ) -> Dict[str, str]:
+    """
+    Translates the letter matrix into a dictionary mapping each element to its assigned letters.
+        Parameters:
+            letter_matrix: 2D letter matrix after sweep and sorting (optional).
+            unique_groups: All unique elements.
+            letter_type: Type of letters to use. 'low_a-z' for lowercase letters, 'up_A-Z' for uppercase letters.
+        
+        Returns:
+            cld_dict: Dictionary mapping each element to its assigned letters.
+    """
     cld_dict = {}
     
-    # How many letters a needed in total.
     n_letters = letter_matrix.shape[1]
-    # Define which letters to use. (Doing it this way offers more flexibility later.)
     if letter_type == 'low_a-z':
         letters = [chr(i) for i in range(97, 97 + n_letters)]  # a-z
     elif letter_type == 'up_A-Z':
         letters = [chr(i) for i in range(65, 65 + n_letters)]  # A-Z
     else:
         raise ValueError("Not a valid letter type was chosen. Choose 'low_a-z' or 'up_A-Z'.")
-    # Assign letters to groups.
+    
     for i, group in enumerate(unique_groups):
         group_letters = ''
         for j in range(n_letters):
@@ -292,7 +302,21 @@ def determine_letters(letter_matrix, unique_groups, letter_type='low_a-z'):
 
     return cld_dict
 
-def fill_all_zero_rows(letter_matrix):
+def fill_all_zero_rows(letter_matrix: np.ndarray) -> np.ndarray:
+    """
+    Fills in any all-0 rows in the letter matrix by adding an additional column.
+    The new column will have a 1 in the positions of the all-0 rows, and 0s elsewhere.
+    This is necessary as the insert-absorb and sweep minimize use of letters, but the 
+    subseuent translation to letters requires that each element has at least one letter.
+
+        Parameter:
+            letter_matrix: 2D letter matrix after sweep.
+
+        Returns:
+            Either: Original letter matrix if no all-0 rows were found.
+            Or: Letter matrix after adding column for all-0 rows.
+
+    """
     # Check for any all-0 rows
     zero_rows = np.all(letter_matrix == 0, axis=1)
     any_row_all_zero = np.any(zero_rows)
@@ -307,27 +331,35 @@ def fill_all_zero_rows(letter_matrix):
     else:
         return letter_matrix
 
-def sort_letters(M):
+def sort_letters(
+        M: np.ndarray
+        ) -> np.ndarray:
+    # IMPORTANT: CHECK!
     """
-    XXX XXX
-        Parameters:
+    Sorts the columns of a binary letter matrix by prioritizing columns with 1s in higher rows.
+
+    Columns are ordered left to right based on the earliest occurrence of a 1 in each column:
+        - Columns with a 1 in the first row are placed furthest to the left.
+        - If multiple columns have a 1 in the same row, the next row is used to break the tie.
+        - This process continues row by row until all columns are uniquely ordered.
+
+       L1 L2 L3         L1 L2 L3       
+    T1 0  1  0        T1 1  0  0  
+    T2 1  1  0   -->  T2 1  1  0  
+    T3 1  1  1        T3 1  1  1  
+    T4 0  0  1        T4 0  0  1    
+
+        Parameter:
+            M: Unsorted letter matrix.
 
         Returns
+            sorted_M: Matrix after the sorting algorithm.
     """
-    def tiny_sort(column):
-        col_1_indices = np.where(column == 1)[0]
-        col_1_indices_sorted = sorted(col_1_indices, reverse=True)
-        print(col_1_indices_sorted)
-        return col_1_indices_sorted
-  #https://numpy.org/doc/2.3/reference/generated/numpy.lexsort.html
-    # sorted_M = sorted(M.T, key=tiny_sort)
-    sorted_indices = np.lexsort(M[::-1], axis=0)
-    print(sorted_indices)
-    print(M)
-    print("3kkk")
-    print(M[:, ::-1])
+    sorted_indices = np.lexsort(M[::-1, :])
+    sorted_indices =np.flip(sorted_indices)
+    sorted_M = M[:, sorted_indices]
 
-    return M
+    return sorted_M
 
 def verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha):
     """
@@ -343,8 +375,6 @@ def verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha):
             alpha: Significance level. 
 
         Returns nothing.
-
-
     """
     for (group_one, group_two, p_value) in zip(group_1_col, group_2_col, p_vals):
         letters_one = final_letters[group_one]
@@ -399,9 +429,9 @@ def run_clc(
     letter_matrix = fill_all_zero_rows(letter_matrix)
     # 6) Sort letter matrix rows according to unique elements order.
     letter_matrix = letter_matrix if isinstance(letter_order, type(None)) else sort_letters(letter_matrix)
-    # 6) Translate matrix into letters.
+    # 7) Translate matrix into letters.
     final_letters = determine_letters(letter_matrix, unique_elements)
-    # 7) Verify that the calculated solutions solves the problem correctly.
+    # 8) Verify that the calculated solutions solves the problem correctly.
     verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha)
 
     return final_letters
