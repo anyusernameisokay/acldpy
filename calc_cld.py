@@ -315,8 +315,8 @@ def fill_all_zero_rows(letter_matrix: np.ndarray) -> np.ndarray:
         Returns:
             Either: Original letter matrix if no all-0 rows were found.
             Or: Letter matrix after adding column for all-0 rows.
-
     """
+
     # Check for any all-0 rows
     zero_rows = np.all(letter_matrix == 0, axis=1)
     any_row_all_zero = np.any(zero_rows)
