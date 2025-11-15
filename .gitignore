@@ -7,5 +7,9 @@ OLD/
 __pycache__/
 to_do.txt
 
+# Used for local testing
+notebooks/
+readme.ipynb
+
 # Literature
 literature/

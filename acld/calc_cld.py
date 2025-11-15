@@ -90,8 +90,12 @@ def insert_new_columns(
         if (ith_position == 1 and jth_position == 0) or (ith_position == 0 and jth_position == 1):
             new_matrix_columns.append(column_in_M)
 
+        # IMPORTANT: Check whether this is true 
+        elif ith_position == 0 and jth_position == 0:
+            new_matrix_columns.append(column_in_M)
+
         # Column needs to be duplicated if it contains 1 on both, i and j.
-        else:
+        elif ith_position == 1 and jth_position == 1:
             # One copy must be like original, but with position 0, and jth position 1.
             # The other copy must be like original, but with position 1, and jth position 0.
             column_copy_one = column_in_M.copy()
@@ -179,13 +183,12 @@ def insert_absorb(
     index_column = np.array(unique_elements)
     col_one = np.ones(len(unique_elements), dtype=np.int8).reshape(-1, 1) # Start with column of 1.
     M = col_one # Letter matrix.
-
     # 2) Iterate over significantly different pairs.
     for (group_one, group_two) in capital_h:
         # 2.1) Find indices of the groups that are significantly different.
         group_one_index = np.where(index_column == group_one)[0][0]
         group_two_index = np.where(index_column == group_two)[0][0]
-
+    
         # 2.2) Insert and absorb.
         M = insert_new_columns(M, group_one_index, group_two_index)
         M = absorb_columns(M)
@@ -214,8 +217,7 @@ def sweep(
         Returns:
             M: 2D letter matrix, after sweep
     """
-
-    # Go each letter (columns in the letter matrix)
+    # Iterate over letters (columns in the letter matrix)
     for first_column_nr, unique_letter_column in enumerate(M.T):
         # Go through each treatment in the column and check letter.
         for i_index, i_th_treat_let in enumerate(unique_letter_column):
@@ -225,11 +227,9 @@ def sweep(
                 continue
             # If the letter is 1, check whether it can be removed. (aka, replaced with 0)
             elif i_th_treat_let == 1:
-
                 # Check for redundancy.
                 # The ith letter can be changed in this first column from 1 to 0 if all 
-                # other treatments (all jth) 
-                # that share the letter with i.
+                # other treatments (all jth) that share the letter with i,
                 # also share another letter with i in another column
                 jth_share_letter_with_ith = []
 
@@ -243,18 +243,19 @@ def sweep(
                     # Check if they have common letter in any other column.
                     ith_and_jth_pair_found_in_other_column = False
                     for second_column_nr, second_column in enumerate(M.T):
-              
                         # Skip if second_column_nr is the same as first_column_nr.
                         if second_column_nr == first_column_nr:
                             continue
                         else:
                             # Check if both treatments have letter 1 in any second column.
-                            if second_column[i_index] == 1 and second_column[j_index] == 1:
+                            if second_column[i_index] == 1 and second_column[j_index] == 1: 
                                 ith_and_jth_pair_found_in_other_column = True
                                 break
                     jth_share_letter_with_ith.append(ith_and_jth_pair_found_in_other_column)
-                # Check if all treatment-pairs i has a redundant letter in at least one other column with each j,
-                ith_letter_in_first_column_redundant = all(jth_share_letter_with_ith)
+                # Check if all pairs between i and any j, share a letter in at least one column.
+                # if jth_share_letter_with_ith is empty, it means that i_th_treat_let was the only one with letter 1 in this column.
+                # In that case, it cannot be removed, even though all() of an empty list returns True.
+                ith_letter_in_first_column_redundant = all(jth_share_letter_with_ith) and len(jth_share_letter_with_ith) > 0
                 if ith_letter_in_first_column_redundant:
                     # Set the letter to 0.
                     M[i_index, first_column_nr] = 0
@@ -316,7 +317,6 @@ def fill_all_zero_rows(letter_matrix: np.ndarray) -> np.ndarray:
             Either: Original letter matrix if no all-0 rows were found.
             Or: Letter matrix after adding column for all-0 rows.
     """
-
     # Check for any all-0 rows
     zero_rows = np.all(letter_matrix == 0, axis=1)
     any_row_all_zero = np.any(zero_rows)
