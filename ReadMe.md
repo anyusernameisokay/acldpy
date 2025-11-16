@@ -66,23 +66,40 @@ print (cld) # {'Adelie': 'b', 'Chinstrap': 'b', 'Gentoo': 'a'}
 
 Besides these three lists, `run_clc` accepts two optional arguments:
 
-1. `alpha` (float, default: 0.05): Significance level. Two elements are considered significantly different if their p‑value is less than alpha.
-2. `letter_order` (None | list, default: None): Used to define the order.
+1. `alpha` (float, default: 0.05): Significance level. Two elements are considered significantly different if their p‑value is less ("<", not "=<"!) than alpha.
+2. `letter_order` (None | list, default: None): If set, a list containing all elements in the order of which they should be assigned letters. Often, one would like to assign the letters in ascending order of the element mean values.
+
+```python
+from acld import run_clc
+
+group_1_names = ["element 1", "element 1", "element 1", "element 2", "element 2", "element 3"]
+group_2_names = ["element 2", "element 3", "element 4", "element 3", "element 4", "element 4"]
+p_values = [0.08, 0.02, 0.01, 0.2, 0.04, 0.08]
+mean_values = {"element 1": 1.2, "element 2": 2.8, "element 3": 3.2, "element 4": 4.0}
+
+cld = run_clc(group_1_names, group_2_names, p_values) # default values for alpha and letter_order
+print(cld) # {'element 1': 'c', 'element 2': 'bc', 'element 3': 'ab', 'element 4': 'a'}
+
+mean_values_sorted = dict(sorted(mean_values.items(), key=lambda item: item[1]))
+cld = run_clc(group_1_names, group_2_names, p_values, alpha=0.1, letter_order=mean_values_sorted.keys())
+print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4': 'c'}
+```
 
 ## Extra Functionality
 
 `find_cld_columns` is a helper function that accepts the result objects of the most common statistical tests and returns the three columns.
 
 ```python
-from
+from acld import find_cld_columns
 
-
+group_1_names, group_2_names, p_values = find_cld_columns(penguins_tk_results, "pg_tk")
 ```
 
 Currently it works with the output of the following tests:
 
 1. `result_type="pg_tk"`: <a href="https://pingouin-stats.org/build/html/generated/pingouin.pairwise_tukey.html#pingouin-pairwise-tukey">pingouin's Tukey-Kramer test</a>
 2. `result_type="stm_tk"`: <a href="https://www.statsmodels.org/dev/generated/statsmodels.sandbox.stats.multicomp.MultiComparison.tukeyhsd.html#statsmodels-sandbox-stats-multicomp-multicomparison-tukeyhsd">statsmodel's Tukey-Kramer test</a>
+
 ## Development & Planned Features
 
 The project is in its early development.
