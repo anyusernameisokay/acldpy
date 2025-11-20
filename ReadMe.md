@@ -87,7 +87,7 @@ print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4':
 
 ## Extra Functionality
 
-`find_cld_columns` is a helper function that accepts the result objects of the most common statistical tests and returns the three columns.
+`find_cld_columns` is a helper function that accepts the result objects of the most common statistical tests and returns the three required lists.
 
 ```python
 from acld import find_cld_columns
