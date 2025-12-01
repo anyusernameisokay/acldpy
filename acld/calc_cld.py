@@ -392,7 +392,7 @@ def verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha):
     return
 
 ### Run the entire process
-def run_clc(
+def run_cld(
     group_1_col: List[str],
     group_2_col: List[str],
     p_vals: List[float],
