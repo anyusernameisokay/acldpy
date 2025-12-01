@@ -1,8 +1,8 @@
 # acld
 
-![PyPI](https://img.shields.io/pypi/v/project-name.svg)](https://pypi.org/project/project-name)
-![Python](https://img.shields.io/pypi/pyversions/project-name.svg)]()
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyPI](https://img.shields.io/pypi/v/project-name.svg)](https://pypi.org/project/project-name)
+[![Python](https://img.shields.io/pypi/pyversions/project-name.svg)]()
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Tests](https://github.com/anyusernameisokay/acld/actions/workflows/tests.yml/badge.svg)
 
 
