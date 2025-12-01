@@ -4,7 +4,6 @@
 [![Python](https://img.shields.io/pypi/pyversions/project-name.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
 ## Summary
 
 This Python 3 package assigns letters to indicate statistically significant
