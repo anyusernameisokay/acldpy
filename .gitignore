@@ -11,6 +11,8 @@ to_do.txt
 notebooks/
 readme.ipynb
 test_diff_stat_libs.ipynb
+.coverage
+.tox/.tmp/
 
 # Literature
 literature/
