@@ -3,6 +3,7 @@ import pandas as pd
 import pingouin as pg
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
+# 1) Test a standard example (known from R)
 TRUE_FEED_LETTER = {
     "sunflower": "a",    
     "casein": "a",    
@@ -20,7 +21,7 @@ def test_chickweights_example():
     assert cld == TRUE_FEED_LETTER, "Test not passed!"
 
 
-
+# 2) Test "extreme cases" (all the same / all different)
 SAME_EXAMPLE_LETTER = {
     "treatment_1": "a",    
     "treatment_2": "a",
@@ -46,7 +47,7 @@ def test_different_example():
     run_cld_result = run_cld(group_1_names, group_2_names, p_values, letter_order=["treatment_4", "treatment_5", "treatment_6"])
     assert run_cld_result == DIFFERENT_EXAMPLE_LETTER, "Test not passed!"
 
-
+# 3) Test the find_cld_columns helper function 
 PENGUINS_LETTER = {
     "Adelie": "a",
     "Chinstrap": "a",
@@ -66,3 +67,9 @@ def test_penguin_ds():
     group_1_col, group_2_col, pvals = find_cld_columns(statsmodels_tk_results, "stm_tk")
     final_letters = run_cld(group_1_col, group_2_col, pvals, letter_order=["Adelie", "Chinstrap", "Gentoo"])
     assert final_letters == PENGUINS_LETTER, "Test not passed!"
+
+# 4) Test sweeing lette
+group_1_names = ["T1"] +6
+
+
+# Test failes

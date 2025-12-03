@@ -423,15 +423,46 @@ def run_cld(
     unique_elements = list_unique_elements(group_1_col, group_2_col, letter_order)
     # 3) Insert and absorb algorithm.
     letter_matrix = insert_absorb(unique_elements, capital_h)
+    print(letter_matrix)
+    print("---")
     # 4) Sweep
     letter_matrix = sweep(letter_matrix)
+    print(letter_matrix)
+    print("---")
     # 5) Fill in any all-0 rows
     letter_matrix = fill_all_zero_rows(letter_matrix)
+    print(letter_matrix)
+    print("---")
     # 6) Sort letter matrix rows according to unique elements order.
     letter_matrix = letter_matrix if isinstance(letter_order, type(None)) else sort_letters(letter_matrix)
+    print(letter_matrix)
+    print("---")
     # 7) Translate matrix into letters.
     final_letters = determine_letters(letter_matrix, unique_elements)
     # 8) Verify that the calculated solutions solves the problem correctly.
     verify_cld(final_letters, group_1_col, group_2_col, p_vals, alpha)
 
     return final_letters
+
+
+
+# Debugging
+
+if __name__ == "__main__":
+    group_1_names = ["T1"] * 7 + ["T2"] * 6 + ["T3"] * 5 + ["T4"] * 4 + ["T5"] * 3 + ["T6"] * 2 + ["T7"] * 1 + ["T8"] * 0
+    group_2_names = []
+    for t in range(1, 9):
+        for t2 in range(t + 1, 9):
+            group_2_names.append(f"T{t2}")
+    print(group_1_names)
+    print(group_2_names)
+    p_values = [1] * len(group_1_names)
+    sig_dif_pairs = [["T1", "T7"], ["T1", "T8"], ["T2", "T4"], ["T2", "T5"], ["T3", "T5"]]
+    for t1, t2 in sig_dif_pairs:
+        for p_id in range(len(p_values)):
+            if (group_1_names[p_id] == t1) and (group_2_names[p_id] == t2):
+                print(t1, t2)
+                p_values[p_id] = 0
+    
+    final_letters = run_cld(group_1_names, group_2_names, p_values,)
+    print(final_letters)
