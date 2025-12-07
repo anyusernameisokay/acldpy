@@ -447,7 +447,7 @@ def run_cld(
 
 
 # Debugging
-
+DEBUG = False
 if __name__ == "__main__":
     group_1_names = ["T1"] * 7 + ["T2"] * 6 + ["T3"] * 5 + ["T4"] * 4 + ["T5"] * 3 + ["T6"] * 2 + ["T7"] * 1 + ["T8"] * 0
     group_2_names = []
