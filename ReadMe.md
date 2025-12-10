@@ -102,11 +102,12 @@ Currently it works with the output of the following tests:
 1. `result_type="pg_tk"`: <a href="https://pingouin-stats.org/build/html/generated/pingouin.pairwise_tukey.html#pingouin-pairwise-tukey">pingouin's Tukey-Kramer test</a>
 2. `result_type="stm_tk"`: <a href="https://www.statsmodels.org/dev/generated/statsmodels.sandbox.stats.multicomp.MultiComparison.tukeyhsd.html#statsmodels-sandbox-stats-multicomp-multicomparison-tukeyhsd">statsmodel's Tukey-Kramer test</a>
 
-## Development & Planned Features
+## Development and Distribution
 
-The project is in its early development.
+This package is provided under the MIT license. I (<a href="https://github.com/anyusernameisokay">NJung</a>) am its sole developer. I encourage you to report issues, when you find them under <https://github.com/anyusernameisokay/acld/issues>. If you do so, please provide your input data, and the error you receive<br><br>
+Currently, the package is still under development, and I expect that some inputs can lead to unhandled exceptions. However, the package will never silently return a wrong cld! 
 <br><br>
-Furthermore, the improvements are planned:
+Furthermore, the following improvements are planned:
 
 - Different and custom alternatives to the classical small letters.
 - Assigning the letters according to the numerical values of the groups.
@@ -129,22 +130,7 @@ vol. 13, no. 2, pp. 456–466, Jun. 2004,
 <br><br>
 I am not affiliated with the authors of these studies.
 
-## License
-
-Specify license, e.g. MIT — see LICENSE file.
-
-## Authors & Maintainers
-
-- Name <email@example.com> — maintainer
-- Contributor list in CONTRIBUTORS.md
-
-## Support
-
-Report issues at: https://github.com/username/project-name/issues
-
 ## Links
 
 - PyPI: https://pypi.org/project/project-name
-- Source: https://github.com/username/project-name
-
-Replace placeholders (project-name, username, links, examples) with real values.
+- Source:  <https://github.com/anyusernameisokay/acld>

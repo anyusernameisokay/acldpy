@@ -1,3 +1,27 @@
+"""The core functions to calculate the compact letter display (cld).
+
+The objective of the cld is to summarize the results of multiple pairwise comparisons. Treatments
+that are not significantly different from one another share at least one letter, while treatments
+that are significantly different share no letters. 
+
+
+Terms as they are used in this doumentation:
+    Treatment: All samples that are "the same", i.e. replicates of one another, are the same
+        treatment. Users perform a statistical test to compare different treatments. The 
+        statistical difference between different treatments is what the cld seeks to express. In the
+        the letter matrix, each row corresponds to a treatment.
+    Letter: In the final cld, letters will be assigned. To calculate which treatment should get
+        which letters, algorighms manipulate the letter matrix. Each column of the letter matrix
+        corresponds to a letter.
+    Letter matrix: A 2D matris where each row is a treatment, each column is a letter, and the 
+        elements indicate wether the treatment should (1) or should not (0) have the letter
+        assigned. When calculating the cld, the letter matrix is filled and extended, and in the
+        end, translated into the letters that each treatment should receive.
+
+Further documentation: https://github.com/anyusernameisokay/acld
+Created by Noël Jung, 2025. 
+"""
+
 from typing import List, Tuple, Dict
 import numpy as np
 
