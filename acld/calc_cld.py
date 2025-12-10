@@ -254,11 +254,19 @@ def sweep(
                     jth_share_letter_with_ith.append(ith_and_jth_pair_found_in_other_column)
                 # Check if all pairs between i and any j, share a letter in at least one column.
                 # if jth_share_letter_with_ith is empty, it means that i_th_treat_let was the only one with letter 1 in this column.
-                # In that case, it cannot be removed, even though all() of an empty list returns True.
-                ith_letter_in_first_column_redundant = all(jth_share_letter_with_ith) and len(jth_share_letter_with_ith) > 0
-                if ith_letter_in_first_column_redundant:
-                    # Set the letter to 0.
+                # In that case, it wether it can be removed or not, depends on whether the treatment has any other 1 in its row.
+
+                # TODO: Check: whether the logic here makes sense. Esentially, we want ot remove the lettter accoring to the rules above.
+                # However, if the letter is alone, because there is no other letter in the columnn, we can remove it regardless. 
+                # However, ONLY, if , after removing, we still have at least one letter for the treatment (same row, other column)!!! This code needs to be checked.
+                ith_letter_is_only_letter_in_ith_row = np.sum(M[i_index, :]) == 1
+                ith_letter_connected_to_all_jths_in_other_cols = all(jth_share_letter_with_ith) and len(jth_share_letter_with_ith) > 0 # Name is misleading.
+                
+                if ith_letter_connected_to_all_jths_in_other_cols: 
                     M[i_index, first_column_nr] = 0
+                if not ith_letter_is_only_letter_in_ith_row and len(jth_share_letter_with_ith) == 0:
+                    M[i_index, first_column_nr] = 0
+                
 
     # Remove empty columns (all zeros).
     non_empty_columns = []
@@ -318,6 +326,7 @@ def fill_all_zero_rows(letter_matrix: np.ndarray) -> np.ndarray:
             Or: Letter matrix after adding column for all-0 rows.
     """
     # Check for any all-0 rows
+    print(letter_matrix)
     zero_rows = np.all(letter_matrix == 0, axis=1)
     any_row_all_zero = np.any(zero_rows)
     if any_row_all_zero:
@@ -423,20 +432,19 @@ def run_cld(
     unique_elements = list_unique_elements(group_1_col, group_2_col, letter_order)
     # 3) Insert and absorb algorithm.
     letter_matrix = insert_absorb(unique_elements, capital_h)
+    print("letter matrix after insert-absorb")
     print(letter_matrix)
-    print("---")
+    if DEBUG and TEST_PERMUT:
+        letter_matrix = rearrange_columns(letter_matrix)
     # 4) Sweep
     letter_matrix = sweep(letter_matrix)
+    print("letter matrix after Sweep")
     print(letter_matrix)
-    print("---")
     # 5) Fill in any all-0 rows
     letter_matrix = fill_all_zero_rows(letter_matrix)
-    print(letter_matrix)
-    print("---")
     # 6) Sort letter matrix rows according to unique elements order.
     letter_matrix = letter_matrix if isinstance(letter_order, type(None)) else sort_letters(letter_matrix)
-    print(letter_matrix)
-    print("---")
+
     # 7) Translate matrix into letters.
     final_letters = determine_letters(letter_matrix, unique_elements)
     # 8) Verify that the calculated solutions solves the problem correctly.
@@ -444,25 +452,45 @@ def run_cld(
 
     return final_letters
 
+DEBUG = False
+TEST_PERMUT = False
+"""
+def rearrange_columns(M):
+    # Not used yet....
+    print("Before permutation")
+    print(M)
+    perm_one = [4,3,2,1,0,5]
 
+    idx = np.empty_like(perm_one)
+    idx[perm_one] = np.arange(len(perm_one))
+    M[:, idx]
+    M[:] = M[:, idx] 
+    print("After permutation")
+    print(M)
+    return M
 
 # Debugging
-DEBUG = False
+
 if __name__ == "__main__":
-    group_1_names = ["T1"] * 7 + ["T2"] * 6 + ["T3"] * 5 + ["T4"] * 4 + ["T5"] * 3 + ["T6"] * 2 + ["T7"] * 1 + ["T8"] * 0
-    group_2_names = []
-    for t in range(1, 9):
-        for t2 in range(t + 1, 9):
-            group_2_names.append(f"T{t2}")
-    print(group_1_names)
-    print(group_2_names)
-    p_values = [1] * len(group_1_names)
-    sig_dif_pairs = [["T1", "T7"], ["T1", "T8"], ["T2", "T4"], ["T2", "T5"], ["T3", "T5"]]
-    for t1, t2 in sig_dif_pairs:
-        for p_id in range(len(p_values)):
-            if (group_1_names[p_id] == t1) and (group_2_names[p_id] == t2):
-                print(t1, t2)
-                p_values[p_id] = 0
-    
-    final_letters = run_cld(group_1_names, group_2_names, p_values,)
-    print(final_letters)
+    DEBUG = True
+    if DEBUG:
+        
+        group_1_names = ["T1"] * 7 + ["T2"] * 6 + ["T3"] * 5 + ["T4"] * 4 + ["T5"] * 3 + ["T6"] * 2 + ["T7"] * 1 + ["T8"] * 0
+        group_2_names = []
+        for t in range(1, 9):
+            for t2 in range(t + 1, 9):
+                group_2_names.append(f"T{t2}")
+        print(group_1_names)
+        print(group_2_names)
+        p_values = [1] * len(group_1_names)
+        sig_dif_pairs = [["T1", "T7"], ["T1", "T8"], ["T2", "T4"], ["T2", "T5"], ["T3", "T5"]]
+        for t1, t2 in sig_dif_pairs:
+            for p_id in range(len(p_values)):
+                if (group_1_names[p_id] == t1) and (group_2_names[p_id] == t2):
+                    print(t1, t2)
+                    p_values[p_id] = 0
+        
+        final_letters = run_cld(group_1_names, group_2_names, p_values,)
+        print(final_letters)
+
+"""
