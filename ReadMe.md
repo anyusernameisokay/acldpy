@@ -104,14 +104,14 @@ Currently it works with the output of the following tests:
 
 ## Development and Distribution
 
-This package is provided under the MIT license. I (<a href="https://github.com/anyusernameisokay">NJung</a>) am its sole developer. I encourage you to report issues, when you find them under <https://github.com/anyusernameisokay/acld/issues>. If you do so, please provide your input data, and the error you receive<br><br>
-Currently, the package is still under development, and I expect that some inputs can lead to unhandled exceptions. However, the package will never silently return a wrong cld! 
+This package is provided under the MIT license. I (<a href="https://github.com/anyusernameisokay">NJung</a>) am its sole developer. I encourage you to report issues, when you find them under <https://github.com/anyusernameisokay/acld/issues>. If you do so, please provide your input data, and the error you receive.<br><br>
+Currently, the package is still under development, and I expect that some inputs lead to unhandled exceptions. However, the package will never silently return a wrong cld! 
 <br><br>
 Furthermore, the following improvements are planned:
 
 - Different and custom alternatives to the classical small letters.
-- Assigning the letters according to the numerical values of the groups.
 - Optimal utilization of numpy under the hood.
+
 
 ## References
 
