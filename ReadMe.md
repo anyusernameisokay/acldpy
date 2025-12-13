@@ -9,13 +9,13 @@
 ## Summary
 
 This Python 3 package assigns letters to indicate statistically significant
-differences between groups following pairwise comparisons. It strives to be
+differences between treatments following pairwise comparisons. It strives to be
 compatiple with all major Python statistics librairies.
 
 <strong>acld = agnostic compact letter display</strong>
 
 Users conduct their statistical test with the library of their choice. Then,
-they pass their result to run_cld.
+they pass their result to acld.
 The package implements algorithms that were described by Piepho
 and coworkers [1,2].
 
@@ -31,59 +31,59 @@ pip install acld
 
 To calculate the cld, you need three arguments.
 
-1. List of all first group names used in the pairwise comparisons.
-2. List of all second group names used in the pairwise comparisons.
-3. A list of the p-values associated with each comparison.
+1. List of all first treatment names used in the pairwise comparisons.
+2. List of all second treatment names used in the pairwise comparisons.
+3. List of the p-values associated with each comparison.
 
-<strong>Generally</strong>, one's input should follow this structure: ith element of `p-values` corresponds to the p-value for the comparison between the ith entry in `group_1_names` and the i-th entry in `group_2_names`:
+<strong>Generally</strong>, one's input should follow this structure: i-th element of `p_values` corresponds to the p-value for the comparison between the ith entry in `first_treatments` and the i-th entry in `second_treatments`:
 
 ```python
-group_1_names = ["element 1", "element 1", "element 2"]
-group_2_names = ["element 2", "element 3", "element 3"]
+first_treatments = ["element 1", "element 1", "element 2"]
+second_treatments = ["element 2", "element 3", "element 3"]
 p_values = [0.9, 0.2, 0.01]
 ```
 
-These three lists are passed to the the `run_clc` function of the acld library. `run_clc` returns a dictionary where each key is a unique element and the value are its associated letter.
+These three lists are passed to the `run_cld` function of the acld library. `run_cld` returns a dictionary where each key is a unique element and the value are its associated letter.
 
 ```python
-from acld import run_clc
+from acld import run_cld
 
-cld = run_clc(group_1_col, group_2_col, p_values)
+cld = run_cld(first_treatments, group_2_col, p_values)
 print (cld) # {'element 1': 'ab', 'element 2': 'b', 'element 3': 'a'}
 ```
 
-<strong>Typically</strong>, the these three required lists can be parsed from the returned object of a stastical test, as illustrated here with the Pingouin implementation of the Tukey-Kramer test.
+<strong>Typically</strong>, these three required lists can be parsed from the returned object of a statistical test, as illustrated here with the Pingouin implementation of the Tukey-Kramer test.
 
 ```python
 import pingouin as pg
-from acld import run_clc
+from acld import run_cld
 
 penguins = pg.read_dataset("penguins") # Example dataset
 tk_result = penguins.pairwise_tukey(dv='body_mass_g', between='species')
-group_1_names, group_2_names, p_values = list(tk_result["A"]), list(tk_result["B"]), list(tk_result["p-tukey"])
+group_1_names, second_treatments, p_values = list(tk_result["A"]), list(tk_result["B"]), list(tk_result["p-tukey"])
 
-cld = run_clc(group_1_names, group_2_names, p_values)
+cld = run_cld(group_1_names, second_treatments, p_values)
 print (cld) # {'Adelie': 'b', 'Chinstrap': 'b', 'Gentoo': 'a'}
 ```
 
-Besides these three lists, `run_clc` accepts two optional arguments:
+Besides these three lists, `run_cld` accepts two optional arguments:
 
 1. `alpha` (float, default: 0.05): Significance level. Two elements are considered significantly different if their p‑value is less ("<", not "=<"!) than alpha.
 2. `letter_order` (None | list, default: None): If set, a list containing all elements in the order of which they should be assigned letters. Often, one would like to assign the letters in ascending order of the element mean values.
 
 ```python
-from acld import run_clc
+from acld import run_cld
 
 group_1_names = ["element 1", "element 1", "element 1", "element 2", "element 2", "element 3"]
-group_2_names = ["element 2", "element 3", "element 4", "element 3", "element 4", "element 4"]
+second_treatments = ["element 2", "element 3", "element 4", "element 3", "element 4", "element 4"]
 p_values = [0.08, 0.02, 0.01, 0.2, 0.04, 0.08]
 mean_values = {"element 1": 1.2, "element 2": 2.8, "element 3": 3.2, "element 4": 4.0}
 
-cld = run_clc(group_1_names, group_2_names, p_values) # default values for alpha and letter_order
+cld = run_cld(group_1_names, second_treatments, p_values) # default values for alpha and letter_order
 print(cld) # {'element 1': 'c', 'element 2': 'bc', 'element 3': 'ab', 'element 4': 'a'}
 
 mean_values_sorted = dict(sorted(mean_values.items(), key=lambda item: item[1]))
-cld = run_clc(group_1_names, group_2_names, p_values, alpha=0.1, letter_order=mean_values_sorted.keys())
+cld = run_cld(group_1_names, second_treatments, p_values, alpha=0.1, letter_order=mean_values_sorted.keys())
 print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4': 'c'}
 ```
 
@@ -94,7 +94,7 @@ print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4':
 ```python
 from acld import find_cld_columns
 
-group_1_names, group_2_names, p_values = find_cld_columns(penguins_tk_results, "pg_tk")
+group_1_names, second_treatments, p_values = find_cld_columns(penguins_tk_results, "pg_tk")
 ```
 
 Currently it works with the output of the following tests:
