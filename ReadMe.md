@@ -35,7 +35,7 @@ To calculate the cld, you need three arguments.
 2. List of all second treatment names used in the pairwise comparisons.
 3. List of the p-values associated with each comparison.
 
-<strong>Generally</strong>, one's input should follow this structure: i-th element of `p_values` corresponds to the p-value for the comparison between the ith entry in `first_treatments` and the i-th entry in `second_treatments`:
+<strong>Generally</strong>, one's input should follow this structure: i-th element of `p_values` corresponds to the p-value for the comparison between the i-th entry in `first_treatments` and the i-th entry in `second_treatments`:
 
 ```python
 first_treatments = ["element 1", "element 1", "element 2"]
@@ -100,7 +100,7 @@ first_treatments, second_treatments, p_values = find_cld_columns(penguins_tk_res
 Currently it works with the output of the following tests:
 
 1. `result_type="pg_tk"`: <a href="https://pingouin-stats.org/build/html/generated/pingouin.pairwise_tukey.html#pingouin-pairwise-tukey">pingouin's Tukey-Kramer test</a>
-2. `result_type="stm_tk"`: <a href="https://www.statsmodels.org/dev/generated/statsmodels.sandbox.stats.multicomp.MultiComparison.tukeyhsd.html#statsmodels-sandbox-stats-multicomp-multicomparison-tukeyhsd">statsmodel's Tukey-Kramer test</a>
+2. `result_type="stm_tk"`: <a href="https://www.statsmodels.org/dev/generated/statsmodels.sandbox.stats.multicomp.MultiComparison.tukeyhsd.html#statsmodels-sandbox-stats-multicomp-multicomparison-tukeyhsd">statsmodels' Tukey-Kramer test</a>
 
 ## Development and Distribution
 
@@ -110,7 +110,7 @@ Currently, the package is still under development, and I expect that some inputs
 Furthermore, the following improvements are planned:
 
 - Different and custom alternatives to the classical small letters.
-- Optimal utilization of numpy under the hood.
+- Optimal utilization of NumPy under the hood.
 
 
 ## References

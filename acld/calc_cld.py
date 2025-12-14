@@ -32,6 +32,56 @@ TODO:
 from typing import List, Tuple, Dict
 import numpy as np
 
+def check_input(
+    first_treatments: List[str],
+    second_treatments: List[str],
+    p_values: List[float],
+    letter_order: None | List[str] = None):
+    """
+    Checks the user input with respect to 
+    """
+    # Check whether all input lists have the same length.
+    assert (len(first_treatments) == len(second_treatments) == len(p_values)), \
+    "Inputs 'first_treatments', 'second_treatments', and 'p_values' must have the same length."
+
+    # Check whether each treatment pair is present and unique.
+    all_treatments = first_treatments + second_treatments
+    unique_treatments = tuple(list(dict.fromkeys(all_treatments)))
+    all_treatment_pairs = []
+    for t in unique_treatments:
+        for t2 in unique_treatments:
+            if t != t2:
+                pair = tuple(sorted((t, t2)))
+                all_treatment_pairs.append(pair)
+    unique_treatment_pairs = set(all_treatment_pairs)
+    print(unique_treatment_pairs)
+
+    provided_treatment_pairs = set()
+    for treat_one, treat_two in zip(first_treatments, second_treatments):
+        assert treat_one != treat_two, \
+        f"Comparisons between the same treatment ({treat_one}) not allowed."
+
+
+        pair = tuple(sorted((treat_one, treat_two)))
+
+        assert pair not in provided_treatment_pairs, \
+        f"Multiple p-values for treatment pair {pair} provided. Each pair must only occur once."
+
+        provided_treatment_pairs.add(pair)
+    provided_treatment_pairs = set(provided_treatment_pairs)
+    print(provided_treatment_pairs)
+
+    assert unique_treatment_pairs == provided_treatment_pairs, \
+    f"Input does not include comparisons of all treatment pairs:\n \
+Provided treatment pairs: {provided_treatment_pairs} \n \
+All possible treatment pairs: {unique_treatment_pairs}"
+
+    # Check whether p-values are between 0 and 1.
+    for p_value in p_values:
+        assert 0 <= p_value <= 1, \
+        f"All p-values must be between 0 and 1. Invalid p-value found: {p_value}"
+
+
 def calc_capital_h(
     first_treatments: List[str],
     second_treatments: List[str],
@@ -76,8 +126,8 @@ def list_unique_elements(
         Returns:
             unique_elements: All unique elements.
     """
-    all_groups = first_treatments + second_treatments
-    unique_elements = tuple(list(dict.fromkeys(all_groups)))
+    all_treatments = first_treatments + second_treatments
+    unique_elements = tuple(list(dict.fromkeys(all_treatments)))
     if isinstance(letter_order, list):
         assert sorted(unique_elements) == sorted(letter_order), \
         f"""The provided order must contain all the same elements found in the element groups.
@@ -353,7 +403,6 @@ def fill_all_zero_rows(letter_matrix: np.ndarray) -> np.ndarray:
             Or: Letter matrix after adding column for all-0 rows.
     """
     # Check for any all-0 rows
-    print(letter_matrix)
     zero_rows = np.all(letter_matrix == 0, axis=1)
     any_row_all_zero = np.any(zero_rows)
     if any_row_all_zero:
@@ -453,6 +502,8 @@ def run_cld(
         Returns: 
             final_letters: Dictionary mapping each element to its assigned letters.
     """
+    # 0) Check input
+    check_input(first_treatments, second_treatments, p_values, letter_order)
     # 1) Filter out all pairs with significant differences (capital_h).
     capital_h = calc_capital_h(first_treatments, second_treatments, p_values, alpha)
     # 2) List all unique elements.
