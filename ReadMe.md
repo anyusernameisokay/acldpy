@@ -48,7 +48,7 @@ These three lists are passed to the `run_cld` function of the acld library. `run
 ```python
 from acld import run_cld
 
-cld = run_cld(first_treatments, group_2_col, p_values)
+cld = run_cld(first_treatments, second_treatments, p_values)
 print (cld) # {'element 1': 'ab', 'element 2': 'b', 'element 3': 'a'}
 ```
 
@@ -60,9 +60,9 @@ from acld import run_cld
 
 penguins = pg.read_dataset("penguins") # Example dataset
 tk_result = penguins.pairwise_tukey(dv='body_mass_g', between='species')
-group_1_names, second_treatments, p_values = list(tk_result["A"]), list(tk_result["B"]), list(tk_result["p-tukey"])
+first_treatments, second_treatments, p_values = list(tk_result["A"]), list(tk_result["B"]), list(tk_result["p-tukey"])
 
-cld = run_cld(group_1_names, second_treatments, p_values)
+cld = run_cld(first_treatments, second_treatments, p_values)
 print (cld) # {'Adelie': 'b', 'Chinstrap': 'b', 'Gentoo': 'a'}
 ```
 
@@ -74,12 +74,12 @@ Besides these three lists, `run_cld` accepts two optional arguments:
 ```python
 from acld import run_cld
 
-group_1_names = ["element 1", "element 1", "element 1", "element 2", "element 2", "element 3"]
+first_treatments = ["element 1", "element 1", "element 1", "element 2", "element 2", "element 3"]
 second_treatments = ["element 2", "element 3", "element 4", "element 3", "element 4", "element 4"]
 p_values = [0.08, 0.02, 0.01, 0.2, 0.04, 0.08]
 mean_values = {"element 1": 1.2, "element 2": 2.8, "element 3": 3.2, "element 4": 4.0}
 
-cld = run_cld(group_1_names, second_treatments, p_values) # default values for alpha and letter_order
+cld = run_cld(first_treatments, second_treatments, p_values) # default values for alpha and letter_order
 print(cld) # {'element 1': 'c', 'element 2': 'bc', 'element 3': 'ab', 'element 4': 'a'}
 
 mean_values_sorted = dict(sorted(mean_values.items(), key=lambda item: item[1]))
@@ -94,7 +94,7 @@ print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4':
 ```python
 from acld import find_cld_columns
 
-group_1_names, second_treatments, p_values = find_cld_columns(penguins_tk_results, "pg_tk")
+first_treatments, second_treatments, p_values = find_cld_columns(penguins_tk_results, "pg_tk")
 ```
 
 Currently it works with the output of the following tests:
