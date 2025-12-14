@@ -10,7 +10,7 @@
 
 This Python 3 package assigns letters to indicate statistically significant
 differences between treatments following pairwise comparisons. It strives to be
-compatiple with all major Python statistics librairies.
+compatible with all major Python statistics libraries.
 
 <strong>acld = agnostic compact letter display</strong>
 
@@ -43,7 +43,7 @@ second_treatments = ["element 2", "element 3", "element 3"]
 p_values = [0.9, 0.2, 0.01]
 ```
 
-These three lists are passed to the `run_cld` function of the acld library. `run_cld` returns a dictionary where each key is a unique element and the value are its associated letter.
+These three lists are passed to the `run_cld` function of the acld library. `run_cld` returns a dictionary where each key is a unique element and the value is its associated letters.
 
 ```python
 from acld import run_cld
@@ -69,7 +69,7 @@ print (cld) # {'Adelie': 'b', 'Chinstrap': 'b', 'Gentoo': 'a'}
 Besides these three lists, `run_cld` accepts two optional arguments:
 
 1. `alpha` (float, default: 0.05): Significance level. Two elements are considered significantly different if their p‑value is less ("<", not "=<"!) than alpha.
-2. `letter_order` (None | list, default: None): If set, a list containing all elements in the order of which they should be assigned letters. Often, one would like to assign the letters in ascending order of the element mean values.
+2. `letter_order` (None | list, default: None): If set, a list containing all elements in the order of which they should be assigned letters to. Often, one would like to assign the letters in ascending order of the element mean values.
 
 ```python
 from acld import run_cld
