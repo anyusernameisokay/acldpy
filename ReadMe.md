@@ -83,7 +83,7 @@ cld = run_cld(first_treatments, second_treatments, p_values) # default values fo
 print(cld) # {'element 1': 'c', 'element 2': 'bc', 'element 3': 'ab', 'element 4': 'a'}
 
 mean_values_sorted = dict(sorted(mean_values.items(), key=lambda item: item[1]))
-cld = run_cld(group_1_names, second_treatments, p_values, alpha=0.1, letter_order=mean_values_sorted.keys())
+cld = run_cld(first_treatments, second_treatments, p_values, alpha=0.1, letter_order=mean_values_sorted.keys())
 print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4': 'c'}
 ```
 
