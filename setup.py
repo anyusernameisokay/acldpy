@@ -8,7 +8,7 @@ except FileNotFoundError:
 
 
 setup(
-    name='acld',
+    name='acldpy',
     version='0.1',
     packages=find_packages(),
     install_requires=[
