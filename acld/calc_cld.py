@@ -1,19 +1,19 @@
-"""The core functions to calculate the compact letter display (cld).
+"""The core functions to calculate a compact letter display (cld).
 
 The objective of the cld is to summarize the results of multiple pairwise comparisons. Treatments
 that are not significantly different from one another share at least one letter, while treatments
 that are significantly different share no letters. 
 
 
-Terms as they are used in this doumentation:
+Simple definitions of key terms:
     Treatment: All samples that are "the same", i.e. replicates of one another, are the same
         treatment. Users perform a statistical test to compare different treatments. The 
         statistical difference between different treatments is what the cld seeks to express. In the
         the letter matrix, each row corresponds to a treatment.
     Letter: In the final cld, letters will be assigned. To calculate which treatment should get
-        which letters, algorighms manipulate the letter matrix. Each column of the letter matrix
-        corresponds to a letter.
-    Letter matrix: A 2D matris where each row is a treatment, each column is a letter, and the 
+        which letters, algorithms manipulate the letter matrix. Each column of the letter matrix
+        is translated into a letter after the calculations are finished.
+    Letter matrix: A 2D matrix where each row is a treatment, each column is a letter, and the 
         elements indicate wether the treatment should (1) or should not (0) have the letter
         assigned. When calculating the cld, the letter matrix is filled and extended, and in the
         end, translated into the letters that each treatment should receive.
@@ -27,6 +27,7 @@ TODO:
 -Bad variables names:
 -Element vs treatment
 -Letter_matrix vs M 
+- In check input function: Call list_unique_elements 
 """
 
 from typing import List, Tuple, Dict
@@ -36,9 +37,18 @@ def check_input(
     first_treatments: List[str],
     second_treatments: List[str],
     p_values: List[float],
-    letter_order: None | List[str] = None):
+    alpha: float):
     """
-    Checks the user input with respect to 
+    Checks whether the user input looks like it is supposed to.
+        - Each treatment pair must have an assocoiated p-value.
+        - Each possible treatment pair must be represented exactly once.
+        - The p-values and alpha must be between 0 and 1.
+
+        Parameters: 
+            first_treatments: List of all first treatments to compare.
+            second_treatments: List of all second treatments to compare.
+            p_values: List of all p-values on which the comparisons are based on.
+            alpha: Significance level. 
     """
     # Check whether all input lists have the same length.
     assert (len(first_treatments) == len(second_treatments) == len(p_values)), \
@@ -54,13 +64,11 @@ def check_input(
                 pair = tuple(sorted((t, t2)))
                 all_treatment_pairs.append(pair)
     unique_treatment_pairs = set(all_treatment_pairs)
-    print(unique_treatment_pairs)
 
     provided_treatment_pairs = set()
     for treat_one, treat_two in zip(first_treatments, second_treatments):
         assert treat_one != treat_two, \
         f"Comparisons between the same treatment ({treat_one}) not allowed."
-
 
         pair = tuple(sorted((treat_one, treat_two)))
 
@@ -81,6 +89,10 @@ All possible treatment pairs: {unique_treatment_pairs}"
         assert 0 <= p_value <= 1, \
         f"All p-values must be between 0 and 1. Invalid p-value found: {p_value}"
 
+    # Check whether alpha is between 0 and 1.
+    assert  0 <= alpha <= 1, \
+    f"Alpha must be between 0 and 1. Invalid value: {alpha}"
+
 
 def calc_capital_h(
     first_treatments: List[str],
@@ -89,13 +101,14 @@ def calc_capital_h(
     alpha: float
     ) -> List[Tuple[str, str]]:
     """
-    Checks which treatment pairs are signficantly different from one another,
-    based on whether respective p-value is smaller than signgicance level.
+    Checks which treatments are significantly different from one another. Treatments that are
+    significantly different are added to capital_h as a tuple. Treatments are signficantly
+    different from one another, when their respective p-value is below the significance level.
     
         Parameters: 
-            first_treatments: List of all first elements to compare.
-            second_treatments: List of all second elemnts to compare.
-            p_values: List of all p-values on which comparison is based on.
+            first_treatments: List of all first treatments to compare.
+            second_treatments: List of all second treatments to compare.
+            p_values: List of all p-values on which the comparisons are based on.
             alpha: Significance level. 
         
         Returns:
@@ -113,14 +126,13 @@ def list_unique_elements(
         letter_order: None | List[str],
         ) -> Tuple:
     """
-    List all elements that are included in the comparison. If an order
-    is given, the elements are put in that order and it is checked 
-    whether unique elements  (derived from the groups) and the list of 
-    ordered elements are the same.
+    Lists all treatments that are included in the comparison. If an order is given, the treatments are
+    put in that order and it is checked whether unique elements (derived from the groups) and the
+    list of ordered elements are the same.
     
         Parameters: 
-            first_treatments: List of all first elements.
-            second_treatments: List of all second elements.
+            first_treatments: List of all first treatments to compare.
+            second_treatments: List of all second treatments to compare.
             letter_order: Optional. List of all elements in the order they should get assigned 
                            letters. The first element in the list will get the "lowest" letter.
         Returns:
@@ -503,7 +515,7 @@ def run_cld(
             final_letters: Dictionary mapping each element to its assigned letters.
     """
     # 0) Check input
-    check_input(first_treatments, second_treatments, p_values, letter_order)
+    check_input(first_treatments, second_treatments, p_values, alpha)
     # 1) Filter out all pairs with significant differences (capital_h).
     capital_h = calc_capital_h(first_treatments, second_treatments, p_values, alpha)
     # 2) List all unique elements.
