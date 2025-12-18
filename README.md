@@ -1,4 +1,4 @@
-# acld
+# acldpy
 
 [![PyPI](https://img.shields.io/pypi/v/project-name.svg)](https://pypi.org/project/project-name)
 [![Python](https://img.shields.io/pypi/pyversions/project-name.svg)]()
@@ -12,7 +12,7 @@ This Python 3 package assigns letters to indicate statistically significant
 differences between treatments following pairwise comparisons. It strives to be
 compatible with all major Python statistics libraries.
 
-<strong>acld = agnostic compact letter display</strong>
+<strong>acldpy = agnostic compact letter display for Python</strong>
 
 Users conduct their statistical test with the library of their choice. Then,
 they pass their result to acld.
@@ -133,4 +133,4 @@ I am not affiliated with the authors of these studies.
 ## Links
 
 - PyPI: https://pypi.org/project/project-name
-- Source:  <https://github.com/anyusernameisokay/acld>
+- Source:  <https://github.com/anyusernameisokay/acldpy>
