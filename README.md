@@ -21,10 +21,10 @@ and coworkers [1,2].
 
 ## Installation
 
-Install from PyPI:
+Install from PyPI test server:
 
 ```bash
-pip install acld
+pip install -i https://test.pypi.org/simple/ acldpy
 ```
 
 ## Basic usage
