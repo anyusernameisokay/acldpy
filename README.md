@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/project-name.svg)](https://pypi.org/project/project-name)
 [![Python](https://img.shields.io/pypi/pyversions/project-name.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Tests](https://github.com/anyusernameisokay/acld/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/anyusernameisokay/acldpy/actions/workflows/test.yml/badge.svg)
 
 
 ## Summary
@@ -15,7 +15,7 @@ compatible with all major Python statistics libraries.
 <strong>acldpy = agnostic compact letter display for Python</strong>
 
 Users conduct their statistical test with the library of their choice. Then,
-they pass their result to acld.
+they pass their result to acldpy.
 The package implements algorithms that were described by Piepho
 and coworkers [1,2].
 
@@ -43,10 +43,10 @@ second_treatments = ["element 2", "element 3", "element 3"]
 p_values = [0.9, 0.2, 0.01]
 ```
 
-These three lists are passed to the `run_cld` function of the acld library. `run_cld` returns a dictionary where each key is a unique element and the value is its associated letters.
+These three lists are passed to the `run_cld` function of the acldpy library. `run_cld` returns a dictionary where each key is a unique element and the value is its associated letters.
 
 ```python
-from acld import run_cld
+from acldpy import run_cld
 
 cld = run_cld(first_treatments, second_treatments, p_values)
 print (cld) # {'element 1': 'ab', 'element 2': 'b', 'element 3': 'a'}
@@ -56,7 +56,7 @@ print (cld) # {'element 1': 'ab', 'element 2': 'b', 'element 3': 'a'}
 
 ```python
 import pingouin as pg
-from acld import run_cld
+from acldpy import run_cld
 
 penguins = pg.read_dataset("penguins") # Example dataset
 tk_result = penguins.pairwise_tukey(dv='body_mass_g', between='species')
@@ -72,7 +72,7 @@ Besides these three lists, `run_cld` accepts two optional arguments:
 2. `letter_order` (None | list, default: None): If set, a list containing all elements in the order of which they should be assigned letters to. Often, one would like to assign the letters in ascending order of the element mean values.
 
 ```python
-from acld import run_cld
+from acldpy import run_cld
 
 first_treatments = ["element 1", "element 1", "element 1", "element 2", "element 2", "element 3"]
 second_treatments = ["element 2", "element 3", "element 4", "element 3", "element 4", "element 4"]
@@ -92,9 +92,9 @@ print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4':
 `find_cld_columns` is a helper function that accepts the result objects of the most common statistical tests and returns the three required lists.
 
 ```python
-from acld import find_cld_columns
+from acldpy import find_cld_columns
 
-first_treatments, second_treatments, p_values = find_cld_columns(penguins_tk_results, "pg_tk")
+first_treatments, second_treatments, p_values = find_cld_columns(penguins_tk_result, "pg_tk")
 ```
 
 Currently it works with the output of the following tests:
@@ -104,7 +104,7 @@ Currently it works with the output of the following tests:
 
 ## Development and Distribution
 
-This package is provided under the MIT license. I (<a href="https://github.com/anyusernameisokay">NJung</a>) am its sole developer. I encourage you to report issues, when you find them under <https://github.com/anyusernameisokay/acld/issues>. If you do so, please provide your input data, and the error you receive.<br><br>
+This package is provided under the MIT license. I (<a href="https://github.com/anyusernameisokay">NJung</a>) am its sole developer. I encourage you to report issues, when you find them under <https://github.com/anyusernameisokay/acldpy/issues>. If you do so, please provide your input data, and the error you receive.<br><br>
 Currently, the package is still under development, and I expect that some inputs lead to unhandled exceptions. However, the package will never silently return a wrong cld! 
 <br><br>
 Furthermore, the following improvements are planned:

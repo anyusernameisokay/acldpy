@@ -13,6 +13,9 @@ readme.ipynb
 test_diff_stat_libs.ipynb
 .coverage
 .tox/.tmp/
+acldpy.egg-info/
+build/
+dist/
 
 # Literature
 literature/

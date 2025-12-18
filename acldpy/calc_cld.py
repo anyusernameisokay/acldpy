@@ -135,6 +135,7 @@ def list_unique_elements(
             second_treatments: List of all second treatments to compare.
             letter_order: Optional. List of all elements in the order they should get assigned 
                            letters. The first element in the list will get the "lowest" letter.
+                           
         Returns:
             unique_elements: All unique elements.
     """
