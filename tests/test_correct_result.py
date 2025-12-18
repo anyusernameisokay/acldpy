@@ -1,4 +1,4 @@
-from acld import run_cld, find_cld_columns
+from acldpy import run_cld, find_cld_columns
 import pandas as pd
 import pingouin as pg
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
