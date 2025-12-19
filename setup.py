@@ -9,7 +9,7 @@ except FileNotFoundError:
 
 setup(
     name='acldpy',
-    version='0.1.8',
+    version='0.1.9',
     packages=find_packages(),
     install_requires=[
         'numpy>=1.13.1',

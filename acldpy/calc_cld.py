@@ -30,7 +30,7 @@ TODO:
 - In check input function: Call list_unique_elements 
 """
 
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 import numpy as np
 
 def check_input(
@@ -123,7 +123,7 @@ def calc_capital_h(
 def list_unique_elements(
         first_treatments: List[str],
         second_treatments: List[str],
-        letter_order: None | List[str],
+        letter_order: Optional[List[str]],
         ) -> Tuple:
     """
     Lists all treatments that are included in the comparison. If an order is given, the treatments are
@@ -495,7 +495,7 @@ def run_cld(
     second_treatments: List[str],
     p_values: List[float],
     alpha: float = 0.05,
-    letter_order: None | List[str] = None,
+    letter_order: Optional[List[str]] = None,
     ) -> Dict[str, str]:
     """
     Computes a Compact Letter Display (CLD) from pairwise group comparisons. Implements the
