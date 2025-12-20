@@ -240,7 +240,7 @@ def absorb_columns(
                 continue
 
             non_zero_col_two_idx = column_two.nonzero()
-            is_col_one_completly_in_col_two = np.in1d(non_zero_col_one_idx,
+            is_col_one_completly_in_col_two = np.isin(non_zero_col_one_idx,
                 non_zero_col_two_idx).all()
             if is_col_one_completly_in_col_two:
                 # Column one should not be kept.
