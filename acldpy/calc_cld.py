@@ -20,14 +20,14 @@ Simple definitions of key terms:
     Capital H: The set of all treatment pairs whose elements are significantly different from one
         another.
 
-Further documentation: https://github.com/anyusernameisokay/acld
+Further documentation: https://github.com/anyusernameisokay/acldpy
 Created by Noël Jung, 2025. 
 
 TODO:
 -Bad variables names:
 -Element vs treatment
 -Letter_matrix vs M 
-- In check input function: Call list_unique_elements 
+- In check input function: Call list_unique_treatments 
 """
 
 from typing import List, Tuple, Dict, Optional
@@ -120,37 +120,36 @@ def calc_capital_h(
             capital_h.append((treat_one, treat_two))
     return capital_h
 
-def list_unique_elements(
+def list_unique_treatments(
         first_treatments: List[str],
         second_treatments: List[str],
         letter_order: Optional[List[str]],
         ) -> Tuple:
     """
-    Lists all treatments that are included in the comparison. If an order is given, the treatments are
-    put in that order and it is checked whether unique elements (derived from the groups) and the
-    list of ordered elements are the same.
+    Lists all treatments that are included in the comparison. If an order is given, the treatments
+    are put in that order.
     
         Parameters: 
             first_treatments: List of all first treatments to compare.
             second_treatments: List of all second treatments to compare.
-            letter_order: Optional. List of all elements in the order they should get assigned 
-                           letters. The first element in the list will get the "lowest" letter.
+            letter_order: Optional. List of all elements in the order they should be assigned
+                letters to. The first element in the list will get the "lowest" letter.
                            
         Returns:
-            unique_elements: All unique elements.
+            unique_treatments: All unique treatments.
     """
     all_treatments = first_treatments + second_treatments
-    unique_elements = tuple(list(dict.fromkeys(all_treatments)))
+    unique_treatments = tuple(list(dict.fromkeys(all_treatments)))
     if isinstance(letter_order, list):
-        assert sorted(unique_elements) == sorted(letter_order), \
-        f"""The provided order must contain all the same elements found in the element groups.
+        assert sorted(unique_treatments) == sorted(letter_order), \
+        f"""letter_order must be a list containing all treatments exactly once.
 
-        Provided order contains {letter_order}
-        Elements found in groups are: {unique_elements}
+        Treatments listed in letter_order: {letter_order}
+        All treatments: {unique_treatments}
         """
-        unique_elements = tuple(letter_order)
+        unique_treatments = tuple(letter_order)
 
-    return unique_elements
+    return unique_treatments
 
 def insert_new_columns(
         M: np.ndarray,
@@ -159,7 +158,8 @@ def insert_new_columns(
         ) -> List[np.ndarray]:
     """
     Inserts new columns to the letter matrix if required. New columns are required for each
-    original column that contains 1 in both rows that correspond to the two compared elements.
+    original column that contains 1 in two rows, that correspond to treatments that are
+    significantly different from one another.
     In that case, the original column is removed, and  a two new ones are added: 
         1. Contains 1 in element row 1 and 0 in element row 2.
         2. Contains 0 in element row 1 and 1 in element row 2.
@@ -169,7 +169,7 @@ def insert_new_columns(
             M: Letter matrix as a 2D numpy array, where each column corresponds to a treatment,
                 and each row corresponds to a letter (1 indicates presence of letter, 0 absence).
             i: Indices indicating for which letters the first treatment has a 1.
-            j: Indices indicating for which letters the second element treatment has a 1.
+            j: Indices indicating for which letters the second treatment has a 1.
 
         Returns:
             new_matrix_columns: List of all columns after the insertion step.
@@ -222,28 +222,27 @@ def absorb_columns(
             M: List of all columns after the insertion step.
 
         Returns:
-            not_absorbed_cols: The letter matrix containing only columns that could not be absorbed.
+            not_absorbed_cols: The letter matrix containing only columns that were not absorbed.
     """
     # Collects all columns that need to be kept.
     not_absorbed_columns = []
 
-    # Tracks cols that have been absobed to avoid columns reffering to each
-    # other when determing whether they should be absorbed.
+    # Tracks cols that have been absobed to avoid columns reffering to each other when determing
+    # whether they should be absorbed.
     absorbed_column_ids = []
 
     for column_one_id, column_one in enumerate(M):
         can_col_one_be_absorbed = False
         non_zero_col_one_idx = column_one.nonzero()
-        # Compare against each other column
+        # Compare against each other column.
         for column_two_id, column_two in enumerate(M):
-            # Skip comparison if cols are identical.
             if (column_one_id == column_two_id) or (column_one_id in absorbed_column_ids):
                 continue
 
             non_zero_col_two_idx = column_two.nonzero()
-            col_one_is_completly_in_col_two = np.in1d(non_zero_col_one_idx,
+            is_col_one_completly_in_col_two = np.in1d(non_zero_col_one_idx,
                 non_zero_col_two_idx).all()
-            if col_one_is_completly_in_col_two:
+            if is_col_one_completly_in_col_two:
                 # Column one should not be kept.
                 absorbed_column_ids.append(column_one_id)
                 can_col_one_be_absorbed = True
@@ -256,29 +255,28 @@ def absorb_columns(
     return not_absorbed_columns
 
 def insert_absorb(
-        unique_elements: Tuple,
+        unique_treatments: Tuple,
         capital_h: List[Tuple[int, int]]
         ) -> np.ndarray:
     """
-    Iterates over the significantly different pairs, applying the insert-absorb algorithm to
-    generate the letter matrix.
+    Iterates over the treatment pairs with significant difference to apply the insert-absorb
+    algorithm to generate the initial letter matrix.
 
         Parameters:
-            unique_elements: All unique elements.
+            unique_treatments: All unique treatments.
             capital_h: List of treatment pairs with significant difference.
 
         Returns:
-            M: Letter matrix as a 2D numpy array,
-                where each column corresponds to an element (treatment),
-                and each row corresponds to a letter (1 indicates presence of letter, 0 absence).
+            M: Letter matrix as a 2D numpy array, where each column corresponds to a treatment and
+                each row corresponds to a letter (1 indicates presence of letter, 0 absence).
     """
     # 1) Generate inital treatment column.
-    index_column = np.array(unique_elements)
-    column_one = np.ones(len(unique_elements), dtype=np.int8).reshape(-1, 1)
+    index_column = np.array(unique_treatments)
+    column_one = np.ones(len(unique_treatments), dtype=np.int8).reshape(-1, 1)
     M = column_one
     # 2) Iterate over significantly different pairs.
     for (treat_one, treat_two) in capital_h:
-        # 2.1) Find indices of the groups that are significantly different.
+        # 2.1) Find indices of the treatments that are significantly different.
         treat_one_index = np.where(index_column == treat_one)[0][0]
         treat_two_index = np.where(index_column == treat_two)[0][0]
 
@@ -295,9 +293,9 @@ def sweep(
         ) -> np.ndarray:
     """
     Performs sweeping of the matrix that is derived from the insert-absort algorithm. A column can
-    be removed if for each possible pair of rows containing 1s, there is at least one other column
-    that contains 1s for in the same row. In the following example column L2 can be removed via 
-    sweeping.
+    be removed if for each possible pair of 1s in its rows, there is at least one other column that
+    contains 1s for in the same respective rows. 
+    In the following example column L2 can be removed by sweeping.
       L1 L2 L3  L4
     T1 1  1  0  1
     T2 1  0  0  1
@@ -311,7 +309,7 @@ def sweep(
         Returns:
             M: 2D letter matrix, after sweep
     """
-    # Iterate over letters (columns in the letter matrix)
+    # Iterate over letters (columns in the letter matrix).
     for first_column_nr, unique_letter_column in enumerate(M.T):
         # Go through each treatment in the column and check letter.
         for i_index, i_th_treat_let in enumerate(unique_letter_column):
@@ -373,6 +371,7 @@ def determine_letters(
         ) -> Dict[str, str]:
     """
     Translates the letter matrix into a dictionary mapping each treatment to its assigned letters.
+
         Parameters:
             letter_matrix: 2D letter matrix after sweep and sorting.
             unique_treatments: All unique treatments.
@@ -403,10 +402,11 @@ def determine_letters(
 
 def fill_all_zero_rows(letter_matrix: np.ndarray) -> np.ndarray:
     """
-    Fills in any all-0 rows in the letter matrix by adding an additional column. The new column
-    will have a 1 in the positions of the all-0 rows, and 0s elsewhere. This is necessary as the
-    insert-absorb and sweep minimize use of letters, but the subsequent translation to letters
-    requires that each treatment has at least one letter.
+    Creates a new column if there exists one or more rows, that have not a single 1, but only 0s in
+    their columns. The new column has 1s in all the rows that were all-0 rows before. This is
+    necessary as after insert-absorb and sweep, there exists the possibility that some treatments
+    have no letters assigned to them and the subsequent translation to letters requires that each
+    treatment has at least one letter
 
         Parameter:
             letter_matrix: 2D letter matrix after sweep.
@@ -415,15 +415,15 @@ def fill_all_zero_rows(letter_matrix: np.ndarray) -> np.ndarray:
             Either: Original letter matrix if no all-0 rows were found.
             Or: Letter matrix after adding column for all-0 rows.
     """
-    # Check for any all-0 rows
+    # Check for any all-0 rows.
     zero_rows = np.all(letter_matrix == 0, axis=1)
     any_row_all_zero = np.any(zero_rows)
     if any_row_all_zero:
-        # Create a new matrix with an additional column
+        # Create a new matrix with an additional column.
         new_matrix = np.zeros((letter_matrix.shape[0], letter_matrix.shape[1] + 1), dtype=np.int8)
-        # Copy the old matrix into the new one
+        # Copy the old matrix into the new one.
         new_matrix[:, :-1] = letter_matrix
-        # Set the last column to 1 for all-0 rows
+        # Set the new column to 1 for all-0 rows.
         new_matrix[zero_rows, -1] = 1
         return new_matrix
 
@@ -433,12 +433,13 @@ def sort_letters(
         M: np.ndarray
         ) -> np.ndarray:
     """
-    Sorts the columns of a binary letter matrix by prioritizing columns with 1s in higher rows.
+    Is called, if the user provided a specific order for the treatments. Sorts the columns of the
+    binary letter matrix by prioritizing columns with 1s in higher rows.
 
     Columns are ordered left to right based on the earliest occurrence of a 1 in each column:
         - Columns with a 1 in the first row are placed furthest to the left.
         - If multiple columns have a 1 in the same row, the next row is used to break the tie.
-        - This process continues row by row until all columns are uniquely ordered.
+        - This process continues row by row until all columns are ordered.
 
        L1 L2 L3         L1 L2 L3       
     T1 0  1  0        T1 1  0  0  
@@ -460,12 +461,14 @@ def sort_letters(
 
 def verify_cld(final_letters, first_treatments, second_treatments, p_values, alpha):
     """
-    Checks whether the calculated cld is accurate by checking that elements, that are siginicantly
-    different share no letter, and elements that are not significantly different share at least 
-    one letter in the final cld. An exception is thrown, if are mistake is discovered.
+    Checks whether the calculated cld is accurate by checking that treaments
+    , that are siginicantly
+    different share no letter, and elements that are not significantly different share at least one
+    letter in the final cld. An exception is thrown, if a mistake is discovered.
 
         Parameters:
-            final_letters: XXX
+            final_letters: Dictionary mapping each treatment to its assigned letters, as returned
+                from determine_letters().
             first_treatments: List of all first elements to compare.
             second_treatments: List of all second elements to compare.
             p_values: List of all p-values on which comparison is based on.
@@ -520,9 +523,9 @@ def run_cld(
     # 1) Filter out all pairs with significant differences (capital_h).
     capital_h = calc_capital_h(first_treatments, second_treatments, p_values, alpha)
     # 2) List all unique elements.
-    unique_elements = list_unique_elements(first_treatments, second_treatments, letter_order)
+    unique_treatments = list_unique_treatments(first_treatments, second_treatments, letter_order)
     # 3) Insert and absorb algorithm.
-    letter_matrix = insert_absorb(unique_elements, capital_h)
+    letter_matrix = insert_absorb(unique_treatments, capital_h)
     #if DEBUG and TEST_PERMUT:
     #    letter_matrix = rearrange_columns(letter_matrix)
     # 4) Sweep
@@ -533,7 +536,7 @@ def run_cld(
     letter_matrix = (letter_matrix if isinstance(letter_order, type(None))
         else sort_letters(letter_matrix))
     # 7) Translate matrix into letters.
-    final_letters = determine_letters(letter_matrix, unique_elements)
+    final_letters = determine_letters(letter_matrix, unique_treatments)
     # 8) Verify that the calculated solutions solves the problem correctly.
     verify_cld(final_letters, first_treatments, second_treatments, p_values, alpha)
 
