@@ -132,5 +132,5 @@ I am not affiliated with the authors of these studies.
 
 ## Links
 
-- PyPI: https://pypi.org/project/project-name
+- PyPI: <https://pypi.org/project/acldpy/>
 - Source:  <https://github.com/anyusernameisokay/acldpy>

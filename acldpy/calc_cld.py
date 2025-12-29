@@ -24,10 +24,9 @@ Further documentation: https://github.com/anyusernameisokay/acldpy
 Created by Noël Jung, 2025. 
 
 TODO:
--Bad variables names:
--Element vs treatment
--Letter_matrix vs M 
-- In check input function: Call list_unique_treatments 
+-Bad variables names.
+-Letter_matrix vs M.
+-In check input function: Call list_unique_treatments.
 """
 
 from typing import List, Tuple, Dict, Optional
@@ -132,8 +131,8 @@ def list_unique_treatments(
         Parameters: 
             first_treatments: List of all first treatments of multiple pairwise comparisons.
             second_treatments: List of all second treatments of multiple pairwise comparisons.
-            letter_order: Optional. List of all elements in the order they should be assigned
-                letters to. The first element in the list will get the "lowest" letter.
+            letter_order: Optional. List of all treatments in the order they should be assigned
+                letters to. The first treatment in the list will get the "lowest" letter.
                            
         Returns:
             unique_treatments: All unique treatments.
@@ -161,8 +160,8 @@ def insert_new_columns(
     original column that contains 1 in two rows, that correspond to treatments that are
     significantly different from one another.
     In that case, the original column is removed, and  a two new ones are added: 
-        1. Contains 1 in element row 1 and 0 in element row 2.
-        2. Contains 0 in element row 1 and 1 in element row 2.
+        1. Contains 1 in row 1 and 0 inrow 2.
+        2. Contains 0 in row 1 and 1 in row 2.
     This function is called once for each pair with significant difference.
 
         Parameters:
@@ -490,7 +489,6 @@ def verify_cld(final_letters, first_treatments, second_treatments, p_values, alp
             assert shared_letters != set(), \
             f"Groups {treat_one} and {treat_two} do not share any letters but should."
 
-### Run the entire process
 def run_cld(
     first_treatments: List[str],
     second_treatments: List[str],
@@ -501,20 +499,20 @@ def run_cld(
     """
     Assigns letters to indicate statistically significant differences between treatments following
     multiple pairwise comparisons. Implementation of the insert-absorb and sweep algorithms by
-    Piepho (2004). First, all significant differences in treatment pairs are identified. Then, the
-    insert-absorb and sweep algorithms are applied to find a compact letter display (cld). Finally,
-    the letter assignment is verified.
+    Piepho (2004). First, all significant differences are identified. Then, the insert-absorb and
+    sweep algorithms are applied to find a compact letter display (cld). Finally, the letter
+    assignment is verified.
 
         Parameters: 
             first_treatments: List of all first treatments of multiple pairwise comparisons.
             second_treatments: List of all second treatments of multiple pairwise comparisons.
             p_values: List of all p-values of the comparisons.
             alpha: Significance level. 
-            letter_order: Optional. List of all elements in the order they should be assigned
-                letters to. The first element in the list will get the "lowest" letter.
+            letter_order: Optional. List of all treatments in the order they should be assigned
+                letters to. The first treatment in the list will get the "lowest" letter.
         
         Returns: 
-            final_letters: Dictionary mapping each element to its assigned letters.
+            final_letters: Dictionary mapping each treatment to its assigned letters.
     """
     # 0) Check input
     check_input(first_treatments, second_treatments, p_values, alpha)
