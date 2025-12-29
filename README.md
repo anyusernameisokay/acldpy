@@ -35,7 +35,7 @@ To calculate the cld, you need three arguments.
 2. List of all second treatment names used in the pairwise comparisons.
 3. List of the p-values associated with each comparison.
 
-<strong>Generally</strong>, one's input should follow this structure: i-th element of `p_values` corresponds to the p-value for the comparison between the i-th entry in `first_treatments` and the i-th entry in `second_treatments`:
+<strong>Generally</strong>, one's input should follow this structure: i-th entry of `p_values` corresponds to the p-value for the comparison between the i-th entry in `first_treatments` and the i-th entry in `second_treatments`:
 
 ```python
 first_treatments = ["element 1", "element 1", "element 2"]
@@ -43,7 +43,7 @@ second_treatments = ["element 2", "element 3", "element 3"]
 p_values = [0.9, 0.2, 0.01]
 ```
 
-These three lists are passed to the `run_cld` function of the acldpy library. `run_cld` returns a dictionary where each key is a unique element and the value is its associated letters.
+These three lists are passed to the `run_cld` function of the acldpy library. `run_cld` returns a dictionary where each key is a unique treatment and the value is its associated letters.
 
 ```python
 from acldpy import run_cld
@@ -68,8 +68,8 @@ print (cld) # {'Adelie': 'b', 'Chinstrap': 'b', 'Gentoo': 'a'}
 
 Besides these three lists, `run_cld` accepts two optional arguments:
 
-1. `alpha` (float, default: 0.05): Significance level. Two elements are considered significantly different if their p‑value is less ("<", not "=<"!) than alpha.
-2. `letter_order` (None | list, default: None): If set, a list containing all elements in the order of which they should be assigned letters to. Often, one would like to assign the letters in ascending order of the element mean values.
+1. `alpha` (float, default: 0.05): Significance level. Two treatments are considered significantly different if their p‑value is less ("<", not "=<"!) than alpha.
+2. `letter_order` (None | list, default: None): If set, a list containing all treatments in the order of which they should be assigned letters to. Often, one would like to assign the letters in ascending order of the treatment mean values.
 
 ```python
 from acldpy import run_cld

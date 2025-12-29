@@ -45,8 +45,8 @@ def check_input(
         - The p-values and alpha must be between 0 and 1.
 
         Parameters: 
-            first_treatments: List of all first treatments to compare.
-            second_treatments: List of all second treatments to compare.
+            first_treatments: List of all first treatments of multiple pairwise comparisons.
+            second_treatments: List of all second treatments of multiple pairwise comparisons.
             p_values: List of all p-values on which the comparisons are based on.
             alpha: Significance level. 
     """
@@ -106,8 +106,8 @@ def calc_capital_h(
     different from one another, when their respective p-value is below the significance level.
     
         Parameters: 
-            first_treatments: List of all first treatments to compare.
-            second_treatments: List of all second treatments to compare.
+            first_treatments: List of all first treatments of multiple pairwise comparisons.
+            second_treatments: List of all second treatments of multiple pairwise comparisons.
             p_values: List of all p-values on which the comparisons are based on.
             alpha: Significance level. 
         
@@ -130,8 +130,8 @@ def list_unique_treatments(
     are put in that order.
     
         Parameters: 
-            first_treatments: List of all first treatments to compare.
-            second_treatments: List of all second treatments to compare.
+            first_treatments: List of all first treatments of multiple pairwise comparisons.
+            second_treatments: List of all second treatments of multiple pairwise comparisons.
             letter_order: Optional. List of all elements in the order they should be assigned
                 letters to. The first element in the list will get the "lowest" letter.
                            
@@ -292,10 +292,9 @@ def sweep(
         M: np.ndarray
         ) -> np.ndarray:
     """
-    Performs sweeping of the matrix that is derived from the insert-absort algorithm. A column can
-    be removed if for each possible pair of 1s in its rows, there is at least one other column that
-    contains 1s for in the same respective rows. 
-    In the following example column L2 can be removed by sweeping.
+    Performs sweeping of the letter matrix. A column can be removed if for each possible pair of 1s
+    in its rows, there is at least one other column that contains 1s for in the same respective
+    rows. In the following example column L2 can be removed by sweeping.
       L1 L2 L3  L4
     T1 1  1  0  1
     T2 1  0  0  1
@@ -461,17 +460,16 @@ def sort_letters(
 
 def verify_cld(final_letters, first_treatments, second_treatments, p_values, alpha):
     """
-    Checks whether the calculated cld is accurate by checking that treaments
-    , that are siginicantly
-    different share no letter, and elements that are not significantly different share at least one
-    letter in the final cld. An exception is thrown, if a mistake is discovered.
+    Checks whether the calculated cld is accurate by iterating over all treatment pairs and
+    confirming that treatments that are not significantly different share at least one letter, and
+    treatments that are significantly different share no letters.
 
         Parameters:
             final_letters: Dictionary mapping each treatment to its assigned letters, as returned
                 from determine_letters().
-            first_treatments: List of all first elements to compare.
-            second_treatments: List of all second elements to compare.
-            p_values: List of all p-values on which comparison is based on.
+            first_treatments: List of all first treatments of multiple pairwise comparisons.
+            second_treatments: List of all second treatments of multiple pairwise comparisons.
+            p_values: List of all p-values of the comparisons.
             alpha: Significance level. 
 
         Returns nothing.
@@ -501,19 +499,19 @@ def run_cld(
     letter_order: Optional[List[str]] = None,
     ) -> Dict[str, str]:
     """
-    Computes a Compact Letter Display (CLD) from pairwise group comparisons. Implements the
-    insert-absorb and sweep algorithms by Piepho (2004). First, all significant differences between
-    element pairs are identified. Then, the insert-absorb and sweep algorithms are applied to find
-    a clc with minimal letters.Finally, the letter assignment is verified against the original
-    pairwise comparisons.
+    Assigns letters to indicate statistically significant differences between treatments following
+    multiple pairwise comparisons. Implementation of the insert-absorb and sweep algorithms by
+    Piepho (2004). First, all significant differences in treatment pairs are identified. Then, the
+    insert-absorb and sweep algorithms are applied to find a compact letter display (cld). Finally,
+    the letter assignment is verified.
 
         Parameters: 
-            first_treatments: List of all first elements to compare.
-            second_treatments: List of all second elements to compare.
-            p_values: List of all p-values on which comparison is based on.
+            first_treatments: List of all first treatments of multiple pairwise comparisons.
+            second_treatments: List of all second treatments of multiple pairwise comparisons.
+            p_values: List of all p-values of the comparisons.
             alpha: Significance level. 
-            letter_order: Optional. List of all elements in the order they should get assigned 
-                           letters. The first element in the list will get the "lowest" letter.
+            letter_order: Optional. List of all elements in the order they should be assigned
+                letters to. The first element in the list will get the "lowest" letter.
         
         Returns: 
             final_letters: Dictionary mapping each element to its assigned letters.
@@ -522,7 +520,7 @@ def run_cld(
     check_input(first_treatments, second_treatments, p_values, alpha)
     # 1) Filter out all pairs with significant differences (capital_h).
     capital_h = calc_capital_h(first_treatments, second_treatments, p_values, alpha)
-    # 2) List all unique elements.
+    # 2) List all unique treatments.
     unique_treatments = list_unique_treatments(first_treatments, second_treatments, letter_order)
     # 3) Insert and absorb algorithm.
     letter_matrix = insert_absorb(unique_treatments, capital_h)
@@ -532,7 +530,7 @@ def run_cld(
     letter_matrix = sweep(letter_matrix)
     # 5) Fill in any all-0 rows
     letter_matrix = fill_all_zero_rows(letter_matrix)
-    # 6) Sort letter matrix rows according to unique elements order.
+    # 6) Sort letter matrix rows according to unique treatments order.
     letter_matrix = (letter_matrix if isinstance(letter_order, type(None))
         else sort_letters(letter_matrix))
     # 7) Translate matrix into letters.
