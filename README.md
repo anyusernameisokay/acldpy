@@ -24,7 +24,7 @@ and coworkers [1,2].
 Install from PyPI test server:
 
 ```bash
-pip install -i https://test.pypi.org/simple/ acldpy
+pip install acldpy
 ```
 
 ## Basic usage
@@ -132,5 +132,5 @@ I am not affiliated with the authors of these studies.
 
 ## Links
 
-- PyPI: <https://pypi.org/project/acldpy/>
+- PyPI: <https://pypi.org/p/acldpy/>
 - Source:  <https://github.com/anyusernameisokay/acldpy>
